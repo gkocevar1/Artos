@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "ValvePhase.h"
-#include <Time.h>
+
+static const char* PhaseNames[] = { "FlushingSFRusco", "FlushingUF", "FlushingGAC", "Filtration", "BackwashRusco", "BackwashUF1", "BackwashUF2", "BackwashUF3", "BackwashUF4", "Desinfection", "Close" };
 
 // ------------------
 // Public methods
@@ -10,61 +11,228 @@
  */
 void ValvePhase::ValvePhase::switchToPhase(Constants::Phase phase)
 {
+  DMSG(PhaseNames[phase]);
+  
   switch (phase)
   {
     case Constants::Phase::FlushingSFRusco:
     {
-      ValvePhase::flushingSFRusco();  
+      ValvePhase::switchValves(
+        false, // 1
+        false, // 2
+        false, // 3
+        false, // 4
+        false, // 5
+        true, // 6
+        false, // 7
+        false, // 8
+        false, // 9
+        false, // 10
+        false, // 11
+        false, // 12
+        false, // 13
+        false  // 14
+        );  
       break;
     }
     case Constants::Phase::FlushingUF:
     {
-      ValvePhase::flushingUF();  
+      ValvePhase::switchValves(
+        true, // 1
+        true, // 2
+        true, // 3
+        true, // 4
+        false, // 5
+        false, // 6
+        false, // 7
+        false, // 8
+        false, // 9
+        true, // 10
+        true, // 11
+        true, // 12
+        true, // 13
+        true  // 14
+        );  
       break;
     }
     case Constants::Phase::FlushingGAC:
     {
-      ValvePhase::flushingGAC();  
+      ValvePhase::switchValves(
+        true, // 1
+        true, // 2
+        false, // 3
+        false, // 4
+        true, // 5
+        false, // 6
+        true, // 7
+        true, // 8
+        false, // 9
+        true, // 10
+        true, // 11
+        false, // 12
+        false, // 13
+        true  // 14
+        );  
       break;
     }
     case Constants::Phase::Filtration:
     {
-      ValvePhase::filtration();  
+      ValvePhase::switchValves(
+        true, // 1
+        true, // 2
+        false, // 3
+        false, // 4
+        true, // 5
+        false, // 6
+        false, // 7
+        false, // 8
+        true, // 9
+        true, // 10
+        true, // 11
+        false, // 12
+        false, // 13
+        true  // 14
+        );  
       break;
     }
-    case Constants::Phase::backwashRusco:
+    case Constants::Phase::BackwashRusco:
     {
-      ValvePhase::backwashRusco();  
+      ValvePhase::switchValves(
+        true, // 1
+        true, // 2
+        false, // 3
+        false, // 4
+        true, // 5
+        true, // 6
+        false, // 7
+        false, // 8
+        true, // 9
+        true, // 10
+        true, // 11
+        false, // 12
+        false, // 13
+        false  // 14
+        );  
       break;
     }
     case Constants::Phase::BackwashUF1:
     {
-      ValvePhase::backwashUF1();  
+      ValvePhase::switchValves(
+        false, // 1
+        true, // 2
+        true, // 3
+        false, // 4
+        false, // 5
+        false, // 6
+        false, // 7
+        false, // 8
+        true, // 9
+        true, // 10
+        true, // 11
+        false, // 12
+        false, // 13
+        true  // 14
+        );  
       break;
     }
     case Constants::Phase::BackwashUF2:
     {
-      ValvePhase::backwashUF2();  
+      ValvePhase::switchValves(
+        true, // 1
+        false, // 2
+        false, // 3
+        true, // 4
+        false, // 5
+        false, // 6
+        false, // 7
+        false, // 8
+        true, // 9
+        true, // 10
+        true, // 11
+        false, // 12
+        false, // 13
+        true  // 14
+        );  
       break;
     }
     case Constants::Phase::BackwashUF3:
     {
-      ValvePhase::backwashUF3();  
+      ValvePhase::switchValves(
+        true, // 1
+        true, // 2
+        false, // 3
+        false, // 4
+        false, // 5
+        false, // 6
+        false, // 7
+        false, // 8
+        true, // 9
+        false, // 10
+        true, // 11
+        true, // 12
+        false, // 13
+        true  // 14
+        );  
       break;
     }
     case Constants::Phase::BackwashUF4:
     {
-      ValvePhase::backwashUF4();  
+      ValvePhase::switchValves(
+        true, // 1
+        true, // 2
+        false, // 3
+        false, // 4
+        false, // 5
+        false, // 6
+        false, // 7
+        false, // 8
+        true, // 9
+        true, // 10
+        false, // 11
+        false, // 12
+        true, // 13
+        true  // 14
+        );  
       break;
     }
     case Constants::Phase::Desinfection:
     {
-      ValvePhase::desinfection();  
+      ValvePhase::switchValves(
+        false, // 1
+        false, // 2
+        true, // 3
+        true, // 4
+        false, // 5
+        false, // 6
+        false, // 7
+        true, // 8
+        true, // 9
+        false, // 10
+        false, // 11
+        true, // 12
+        true, // 13
+        false  // 14
+        );  
       break;
     }
     case Constants::Phase::Close:
     {
-      ValvePhase::closeValves();  
+      ValvePhase::switchValves(
+        false, // 1
+        false, // 2
+        false, // 3
+        false, // 4
+        false, // 5
+        false, // 6
+        false, // 7
+        false, // 8
+        false, // 9
+        false, // 10
+        false, // 11
+        false, // 12
+        false, // 13
+        false  // 14
+        );  
       break;
     }
   }
@@ -74,98 +242,159 @@ void ValvePhase::ValvePhase::switchToPhase(Constants::Phase phase)
 // private methods
 
 /**
- * flushing SF (Rusco)
- */
-void ValvePhase::flushingSFRusco()
-{
-  
-}
-
-/**
- * flushing both UF
- */
-void ValvePhase::flushingUF()
-{
-  
-}
-
-/**
- * flushing GAC
- */
-void ValvePhase::flushingGAC()
-{
-  
-}
-
-/**
- * filtration
- */
-void ValvePhase::filtration()
-{
-  
-}
-
-/**
- * backwash Rusco 
- */
-void ValvePhase::backwashRusco()
-{
-  
-}
-
-/**
- * backwash UF 1
- */
-void ValvePhase::backwashUF1()
-{
-  
-}
-
-/**
- * backwash UF 2
- */
-void ValvePhase::backwashUF2()
-{
-  
-}
-
-/**
- * backwash UF 3
- */
-void ValvePhase::backwashUF3()
-{
-  
-}
-
-/**
- * backwash UF 4
- */
-void ValvePhase::backwashUF4()
-{
-  
-}
-
-/**
- * desinfection
- */
-void ValvePhase::desinfection()
-{
-  
-}
-
-/**
- * close all valves
- */
-void ValvePhase::closeValves()
-{
-  
-}
-
-/**
  * switch valves to proper position
  */
-void ValvePhase::switchValves(boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean)
+void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, boolean v5, boolean v6, boolean v7, boolean v8, boolean v9, boolean v10, boolean v11, boolean v12, boolean v13, boolean v14)
 {
+  String info = String(
+    "v1:" + ValvePhase::info(v1) + ", " +
+    "v2:" + ValvePhase::info(v2) + ", " +
+    "v3:" + ValvePhase::info(v3) + ", " +
+    "v4:" + ValvePhase::info(v4) + ", " +
+    "v5:" + ValvePhase::info(v5) + ", " +
+    "v6:" + ValvePhase::info(v6) + ", " +
+    "v7:" + ValvePhase::info(v7) + ", " +
+    "v8:" + ValvePhase::info(v8) + ", " +
+    "v9:" + ValvePhase::info(v9) + ", " +
+    "v10:" + ValvePhase::info(v10) + ", " +
+    "v11:" + ValvePhase::info(v11) + ", " +
+    "v12:" + ValvePhase::info(v12) + ", " +
+    "v13:" + ValvePhase::info(v13) + ", " +
+    "v14:" + ValvePhase::info(v14));
+  DMSG(info);
   
+  if (v1)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v2)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v3)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v4)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v5)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v6)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v7)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v8)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v9)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v10)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v11)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v12)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v13)
+  {
+    
+  }
+  else
+  {
+    
+  }
+
+  if (v14)
+  {
+    
+  }
+  else
+  {
+    
+  }
+}
+
+/**
+ * Only to build info string - not needed in PRODUCTION
+ */
+String ValvePhase::info(boolean v)
+{
+  return v ? "open" : "close";
 }
 

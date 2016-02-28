@@ -30,8 +30,9 @@ void setup()
  */
 void loop()
 {
-  printToFirstLine("test");
-  DMSG("test");
+  
+  
+
   
   delay(1000);
 }

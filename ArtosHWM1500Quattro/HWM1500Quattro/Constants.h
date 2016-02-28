@@ -38,12 +38,14 @@ class Constants
     const static int Valve13M = 45;
     const static int Valve14P = 46;
     const static int Valve14M = 47;
+    
     // light indicator constants
     const static int PowerOnLight = 14;
     const static int Program1Light = 15;
     const static int Program2Light = 16;
     const static int Program3Light = 17;
-    const static int DesinfectionLight = 18;
+    
+    /*const static int DesinfectionLight = 18;
     const static int FlushingLight = 19;
     // UV light
     const static int UVLight = 48;
@@ -52,7 +54,7 @@ class Constants
     // service light
     const static int ServiceLight = 50; 
     // pump light
-    const static int PumpLight = 51;
+    const static int PumpLight = 51;*/
 
     // Washing in filtration phases
     enum Phase
@@ -69,6 +71,21 @@ class Constants
       Desinfection = 9,
       Close = 10
     };
+
+    // Program and phase durations (in seconds)
+    const static int Program1Duration = 900; 
+    const static int Program2Duration = 1800; 
+    const static int Program3Duration = 3600; 
+    const static int DesinfectionDuration = 30; 
+    
+    const static int FlushingSFRuscoDuration = 30; 
+    const static int FlushingUFDuration = 60; 
+    const static int FlushingGACDuration = 60;
+    const static int BackwashRuscoDuration = 300; 
+    const static int BackwashUF1Duration = 60; 
+    const static int BackwashUF2Duration = 60; 
+    const static int BackwashUF3Duration = 60; 
+    const static int BackwashUF4Duration = 60;
 };
 
 #endif

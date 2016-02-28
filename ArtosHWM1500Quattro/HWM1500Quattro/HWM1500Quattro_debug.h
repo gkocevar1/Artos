@@ -7,7 +7,7 @@
 #include "Arduino.h"
 
 #ifdef DEBUG
-#define DMSG(args...)       Serial.print(args)
+#define DMSG(args...)       Serial.println(args)
 #define DMSG_STR(str)       Serial.println(str)
 #define DMSG_HEX(num)       Serial.print(' '); Serial.print(num, HEX)
 #define DMSG_INT(num)       Serial.print(' '); Serial.print(num)
