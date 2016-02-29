@@ -7,27 +7,27 @@
 
 class ValvePhase
 {
-  public:
+	public:
 
-    /**
-     * Switch valves to desired phase
-     */
-    void switchToPhase(Constants::Phase);
-    
-  private:
+		/*
+		Switch valves to desired phase
+		*/
+		void switchToPhase(Constants::Phase);
 
-    /**
-     * switch valves to proper position
-     */
-    void switchValves(boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean);
+	private:
 
-    /**
-     * Only to build info string - not needed in PRODUCTION
-     */
-    String info(boolean);
-    
-    // flag indicates whether pump is running or not
-    boolean _pumpRunning;
+		/*
+		switch valves to proper position
+		*/
+		void switchValves(boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean);
+
+		/*
+		Build info text
+		*/
+		String info(boolean);
+
+		// flag indicates whether pump is running or not
+		boolean _pumpRunning;
 };
 
 #endif
