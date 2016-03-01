@@ -16,7 +16,7 @@ ValvePhase::ValvePhase()
 */
 void ValvePhase::switchToPhase(Constants::Phase phase)
 {
-  DMSG1("New Phase: ");DMSG1(" ");DMSG(Constants::PhaseNames[phase]);
+  DMSG1("New Phase: ");DMSG(Constants::PhaseNames[phase]);
 
 	switch (phase)
 	{
@@ -271,9 +271,12 @@ void ValvePhase::deactivateValves()
 {
   for (int i = 0; i < 14; i++)
   {
-    // deactivate valve
-    digitalWrite(_activeValves[i], LOW);
-    _activeValves[i] = -1;
+    if (_activeValves[i] != -1)
+    {
+      // deactivate valve
+      digitalWrite(_activeValves[i], LOW);
+      _activeValves[i] = -1;
+    }
   }
 }
 
@@ -316,6 +319,13 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
   ValvePhase::activateValve((v12 ? Constants::Valve12P : Constants::Valve12M), 11);
   ValvePhase::activateValve((v13 ? Constants::Valve13P : Constants::Valve13M), 12);
   ValvePhase::activateValve((v14 ? Constants::Valve14P : Constants::Valve14M), 13);
+
+  DMSG("");
+
+  // UV light is turned on when pump is running and valve 9 is open.
+  digitalWrite(Constants::UVLight, ((pumpRunning && v9) ? HIGH : LOW));
+
+  DMSG1("UV light is: ");DMSG((pumpRunning && v9) ? "ON" : "OFF");
 }
 
 /**
@@ -323,6 +333,7 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
  */
 void ValvePhase::activateValve(int valveId, int pos)
 {
+  DMSG1(valveId); DMSG1(" ");
   // save active valve
   _activeValves[pos] = valveId;
   // open valve

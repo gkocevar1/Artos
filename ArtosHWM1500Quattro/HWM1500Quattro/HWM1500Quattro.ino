@@ -1,8 +1,35 @@
+/**
+ * HWM1500Quattro workflow
+ * 
+ * When machine is turned on wash program is started immediately (sequence 1A to 1C). After 3 seconds pump is turned on.
+ * 
+ * Program 1 is started automatically when wash program is completed. 
+ * During the first 2A phase, user can select different programs (program 1, program 2, program 3 or desinfection). Otherwise selection is disabled.
+ * 
+ * Wash program is active during all 2A phases. When user press on wash button, phases 1A to 1C are executed. 
+ * Once wash program is completed, 2A phase is continue for selected program.
+ * 
+ * 
+ * Desinfection program can be selected only during first 2A phase. If desinfection is selected, valves must be moved to proper positions. 
+ * Nothing else can be selected during that phase. Only enter button must be active. By pressing the end button all vales will be moved to close position. 
+ * Desinfection light must blink during period. TODO: find out how many seconds.
+ * 
+ * UV light is turned on when pump is running and valve 9 is open.
+ */
+
 #include <Vector.h>
 #include <LiquidCrystal.h>
 #include "HWM1500Quattro_debug.h"
 #include "Constants.h"
 #include "StateMachine.h"
+
+// button PIN constants
+#define btnRIGHT  0 // flushing
+#define btnUP     1 // service info
+#define btnDOWN   2
+#define btnLEFT   3 // program selection
+#define btnSELECT 4 // confirmation button
+#define btnNONE   5
 
 LiquidCrystal _lcd(8, 9, 4, 5, 6, 7);
 StateMachine _sm;
@@ -11,8 +38,8 @@ StateMachine _sm;
 
 char* _aFirstLine;
 char* _aSecondLine;
-
 boolean _programRunning = false;
+unsigned long _start = now();
 
 
 
@@ -28,32 +55,205 @@ void setup() {
 
 	// init serial port
 	Serial.begin(9600);
+
+  // init all pins
+  // valves
+  pinMode(Constants::Valve1P, OUTPUT);
+  pinMode(Constants::Valve1M, OUTPUT);
+  pinMode(Constants::Valve2P, OUTPUT);
+  pinMode(Constants::Valve2M, OUTPUT);
+  pinMode(Constants::Valve3P, OUTPUT);
+  pinMode(Constants::Valve3M, OUTPUT);
+  pinMode(Constants::Valve4P, OUTPUT);
+  pinMode(Constants::Valve4M, OUTPUT);
+  pinMode(Constants::Valve5P, OUTPUT);
+  pinMode(Constants::Valve5M, OUTPUT);
+  pinMode(Constants::Valve6P, OUTPUT);
+  pinMode(Constants::Valve6M, OUTPUT);
+  pinMode(Constants::Valve7P, OUTPUT);
+  pinMode(Constants::Valve7M, OUTPUT);
+  pinMode(Constants::Valve8P, OUTPUT);
+  pinMode(Constants::Valve8M, OUTPUT);
+  pinMode(Constants::Valve9P, OUTPUT);
+  pinMode(Constants::Valve9M, OUTPUT);
+  pinMode(Constants::Valve10P, OUTPUT);
+  pinMode(Constants::Valve10M, OUTPUT);
+  pinMode(Constants::Valve11P, OUTPUT);
+  pinMode(Constants::Valve11M, OUTPUT);
+  pinMode(Constants::Valve12P, OUTPUT);
+  pinMode(Constants::Valve12M, OUTPUT);
+  pinMode(Constants::Valve13P, OUTPUT);
+  pinMode(Constants::Valve13M, OUTPUT);
+  pinMode(Constants::Valve14P, OUTPUT);
+  pinMode(Constants::Valve14M, OUTPUT);
+  // lights
+  pinMode(Constants::Program1Light, OUTPUT);
+  pinMode(Constants::Program2Light, OUTPUT);
+  pinMode(Constants::Program3Light, OUTPUT);
+  pinMode(Constants::DesinfectionLight, OUTPUT);
+  pinMode(Constants::WashLight, OUTPUT);
+  pinMode(Constants::PumpLight, OUTPUT);
+  pinMode(Constants::UVLight, OUTPUT);
+  pinMode(Constants::PowerOnLight, OUTPUT);
+  delay(100);
+  // turn on power light
+  digitalWrite(Constants::PowerOnLight, HIGH);
 }
 
 /*
 Main loop
 */
 void loop() {
+
+  // TODO: select between programs(1,2,3) - this can be selected only during first 2A phase (each time)
+  // TODO: select wash (special case: this can be selected always during phase 2A)
+  // TODO: select desinfection - this can be selected only during first 2A phase (each time) - confirmation needed to close valves and blink with desinfection light
+  // TODO: reset display to previous values after 5 seconds
+  // TODO: display status, 
+  // TODO: if service needed blink the light (or display on screen),
+  // TODO: stop machine if service time exceeded,
   
 	if (!_programRunning)
 	{
 		_programRunning = true;
-
-		_sm.runProgram(Constants::Program::Program2);
+    // by default Program1 is started
+		_sm.runProgram(Constants::Program::Program1);
 	}
 	else
 	{
-		// check state
-		DMSG1(millis() / 1000);DMSG1(" ");
-		
 		_sm.checkProgress();
 	}
 
+  // update display with text
   updateDisplay();
+  // check if users pressed a button
+  checkUserSelection();
 
-	delay(1000);
+  
 }
 
+// -------------------------
+// AUTOMATIC SELECTIONS
+
+
+
+// --------------------------
+// USER SELECTION
+
+boolean _pressed = false;
+void checkUserSelection()
+{
+  int pressedButton = getPressedButton();
+  
+  switch (pressedButton)
+  {
+    case btnRIGHT: 
+    {
+      // trigger wash program (WASH button on device)
+      delay(300);
+      if (!_pressed)
+      {
+        _pressed = true;
+        printToFirstLine("WASH");
+      } 
+      
+      break;
+    }
+    case btnLEFT:
+    {
+      // select program (ENTER button on device)
+      delay(300);
+      if (!_pressed)
+      {
+        _pressed = true;
+        printToFirstLine("ENTER");
+      } 
+      
+      break;
+    }
+    case btnSELECT:
+    {
+      // choose between options (SELECT button on device)
+      delay(300);
+      if (!_pressed)
+      {
+        _pressed = true;
+        printToFirstLine("SELECT");
+      } 
+      
+      break;
+    }
+    case btnUP:
+    {
+      // status of device (STATUS button on device)
+      delay(300);
+      if (!_pressed)
+      {
+        _pressed = true;
+        printToFirstLine("STATUS");
+      }  
+  
+      break;
+    }
+    case btnDOWN:
+    { 
+      break;
+    }
+    case btnNONE:
+    {
+      _pressed = false;
+      break;
+    }
+  }
+}
+
+/**
+ * get pressed button
+ */
+int getPressedButton()
+{
+  int analogInput = analogRead(0);      // read the value from the sensor
+  
+  if (analogInput > 1000) 
+  {  
+    return btnNONE; // We make this the 1st option for speed reasons since it will be the most likely result
+  }
+  
+  if (analogInput < 50)   
+  {
+    return btnRIGHT;  
+  }
+  
+  if (analogInput < 200)  
+  {
+    return btnUP;
+  }
+  
+  if (analogInput < 300)  
+  {
+    return btnDOWN;
+  }
+  
+  if (analogInput < 500)  
+  {
+    return btnLEFT; 
+  }
+  
+  if (analogInput < 700)  
+  {
+    return btnSELECT;  
+  }
+  
+  return btnNONE;  // when all others fail, return this...
+}
+
+// --------------------------
+// LIQUID CRYSTAL
+
+/**
+ * update text on display. 
+ * Last text will be saved in memory and new text will be compared with last text and updated only if different.
+ */
 void updateDisplay()
 {
   char* program;

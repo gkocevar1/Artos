@@ -59,6 +59,7 @@ class StateMachine
 			Vector<CycleSequence> sequences;
 		};
 
+    // Fields
     Constants::Program runningProgram;
     Constants::Phase runningPhase;
 
@@ -76,9 +77,9 @@ class StateMachine
     Cycle _currentCycle;
     // Current sequence number of a cycle
     int _sequenceNumber = 0;
-    // Sequecen start time
+    // Sequence start time
     unsigned long _sequenceStart = 0;
-
+    
 		/**
 		* init cycles
 		*/
@@ -109,6 +110,13 @@ class StateMachine
      * save running phase
      */
     void saveRunningPhase();
+
+    /**
+     * checks whether pump must be turned on or off
+     * pump is turned on after 3 seconds
+     * pump is turned off on desinfection phase or 2AA phase
+     */
+    void checkPump();
 };
 
 #endif

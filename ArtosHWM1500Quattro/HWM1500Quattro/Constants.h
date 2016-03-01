@@ -39,22 +39,16 @@ public:
 	const static int Valve14P = 46;
 	const static int Valve14M = 47;
 
-	// light indicator constants
-	const static int PowerOnLight = 14;
+	// light indicators constants
+	const static int PowerOnLight = 50;
 	const static int Program1Light = 15;
 	const static int Program2Light = 16;
 	const static int Program3Light = 17;
-
-	/*const static int DesinfectionLight = 18;
-	const static int FlushingLight = 19;
-	// UV light
-	const static int UVLight = 48;
-	// error light
-	const static int ErrorLight = 49;
-	// service light
-	const static int ServiceLight = 50;
-	// pump light
-	const static int PumpLight = 51;*/
+  const static int DesinfectionLight = 18;
+  const static int WashLight = 19;
+  // light indicators and triggers constants
+  const static int PumpLight = 48;
+  const static int UVLight = 49;
 
 	// Washing in filtration phases
 	enum Phase
@@ -100,22 +94,7 @@ public:
 
   // Phase names (to display on screen)
   static char* PhaseNames[];
-  
-
-  
-
-	// Program and phase durations (in seconds)
-	/*const static int Program1Duration = 900;
-	const static int Program2Duration = 1800;
-	const static int Program3Duration = 3600;*/
-
-  
-
  
-	
-
-  
-
   // ---------------
   // Phase durations
 	/*const static int FlushingSFRuscoDuration = 30; 
@@ -134,7 +113,7 @@ public:
   const static int FlushingSFRuscoDuration = 5; 
   const static int FlushingUF1BDuration = 5;
   const static int FlushingGACDuration = 5;
-  const static int FiltrationDuration = 10; 
+  const static int FiltrationDuration = 30; // 1 minute - only for test 
   const static int BackwashRuscoDuration = 5;
   const static int FlushingUF2BDuration = 5;
   const static int BackwashUF1Duration = 5;

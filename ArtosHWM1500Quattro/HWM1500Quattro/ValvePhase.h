@@ -24,6 +24,11 @@ class ValvePhase
      */
     void deactivateValves();
 
+    // flag indicates whether pump is running or not
+    // pump is turned on after 3 seconds
+    // pump is turned off on desinfection phase or 2AA phase
+    boolean pumpRunning;
+
     /**
      * Valve is combination of positive and negative state (or trigger). Two different states are controlled by two pins
      * 
@@ -66,9 +71,6 @@ class ValvePhase
     // or
     // List of active valves - valves are closed two second before sequence ends
     int _activeValves[14];
-
-		// flag indicates whether pump is running or not
-		boolean _pumpRunning;
 };
 
 #endif
