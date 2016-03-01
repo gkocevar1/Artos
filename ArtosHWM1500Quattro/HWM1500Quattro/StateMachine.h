@@ -61,11 +61,6 @@ class StateMachine
 
     Constants::Program runningProgram;
     Constants::Phase runningPhase;
-    /*struct Result
-    {
-      char* firstLine;
-      char* secondLine;
-    };*/
 
 	private:
 

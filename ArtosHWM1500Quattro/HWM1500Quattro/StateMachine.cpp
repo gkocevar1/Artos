@@ -61,8 +61,6 @@ void StateMachine::runProgram(Constants::Program program)
       break;
     }
 	}
-
-  //return result;
 }
 
 /*
@@ -70,14 +68,17 @@ check current cycle progress
 */
 void StateMachine::checkProgress()
 {
-  //StateMachine::Result result;
 	if (now() > (StateMachine::getSequenceDuration() + _sequenceStart))
 	{
 		// move to next sequence
 		StateMachine::moveToNextSequence();
 	}
+  else if ((now() - 2) > (StateMachine::getSequenceDuration() + _sequenceStart))
+  {
+    // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
+    _vp.deactivateValves();
+  }
 
-  //return result;
 }
 
 // ------------------

@@ -1,5 +1,13 @@
 #include "ValvePhase.h"
 
+/**
+ * Constructor
+ */
+ValvePhase::ValvePhase()
+{
+  ValvePhase::init();
+}
+
 // ------------------
 // Public methods
 
@@ -8,8 +16,7 @@
 */
 void ValvePhase::switchToPhase(Constants::Phase phase)
 {
-  DMSG1("New Phase: ");DMSG1(phase);DMSG1(" ");
-	DMSG(Constants::PhaseNames[phase]);
+  DMSG1("New Phase: ");DMSG1(" ");DMSG(Constants::PhaseNames[phase]);
 
 	switch (phase)
 	{
@@ -234,7 +241,7 @@ void ValvePhase::switchToPhase(Constants::Phase phase)
         );
       break;
     }
-  	/*case Constants::Phase::Close:
+  	case Constants::Phase::Close:
   	{
   		ValvePhase::switchValves(
   			false, // 1
@@ -253,8 +260,21 @@ void ValvePhase::switchToPhase(Constants::Phase phase)
   			false  // 14
   			);
   		break;
-  	}*/
+  	}
 	}
+}
+
+/**
+ * deactive all valves. Set PIN state to LOW
+ */
+void ValvePhase::deactivateValves()
+{
+  for (int i = 0; i < 14; i++)
+  {
+    // deactivate valve
+    digitalWrite(_activeValves[i], LOW);
+    _activeValves[i] = -1;
+  }
 }
 
 // ------------------
@@ -282,131 +302,67 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
 		"v14:" + ValvePhase::info(v14));
 	DMSG(info);
 
-	if (v1)
-	{
+	ValvePhase::activateValve((v1 ? Constants::Valve1P : Constants::Valve1M), 0);
+  ValvePhase::activateValve((v2 ? Constants::Valve2P : Constants::Valve2M), 1);
+  ValvePhase::activateValve((v3 ? Constants::Valve3P : Constants::Valve3M), 2);
+  ValvePhase::activateValve((v4 ? Constants::Valve4P : Constants::Valve4M), 3);
+  ValvePhase::activateValve((v5 ? Constants::Valve5P : Constants::Valve5M), 4);
+  ValvePhase::activateValve((v6 ? Constants::Valve6P : Constants::Valve6M), 5);
+  ValvePhase::activateValve((v7 ? Constants::Valve7P : Constants::Valve7M), 6);
+  ValvePhase::activateValve((v8 ? Constants::Valve8P : Constants::Valve8M), 7);
+  ValvePhase::activateValve((v9 ? Constants::Valve9P : Constants::Valve9M), 8);
+  ValvePhase::activateValve((v10 ? Constants::Valve10P : Constants::Valve10M), 9);
+  ValvePhase::activateValve((v11 ? Constants::Valve11P : Constants::Valve11M), 10);
+  ValvePhase::activateValve((v12 ? Constants::Valve12P : Constants::Valve12M), 11);
+  ValvePhase::activateValve((v13 ? Constants::Valve13P : Constants::Valve13M), 12);
+  ValvePhase::activateValve((v14 ? Constants::Valve14P : Constants::Valve14M), 13);
+}
 
-	}
-	else
-	{
+/**
+ * activate valve
+ */
+void ValvePhase::activateValve(int valveId, int pos)
+{
+  // save active valve
+  _activeValves[pos] = valveId;
+  // open valve
+  digitalWrite(valveId, HIGH);
+}
 
-	}
+/**
+ * Init valves
+ */
+void ValvePhase::init()
+{
+  /*ValvePhase::_valves[0] = (Valve){ Constants::Valve1P, Constants::Valve1M, -1 };
+  ValvePhase::_valves[1] = (Valve){ Constants::Valve2P, Constants::Valve2M, -1 };
+  ValvePhase::_valves[2] = (Valve){ Constants::Valve3P, Constants::Valve3M, -1 };
+  ValvePhase::_valves[3] = (Valve){ Constants::Valve4P, Constants::Valve4M, -1 };
+  ValvePhase::_valves[4] = (Valve){ Constants::Valve5P, Constants::Valve5M, -1 };
+  ValvePhase::_valves[5] = (Valve){ Constants::Valve6P, Constants::Valve6M, -1 };
+  ValvePhase::_valves[6] = (Valve){ Constants::Valve7P, Constants::Valve7M, -1 };
+  ValvePhase::_valves[7] = (Valve){ Constants::Valve8P, Constants::Valve8M, -1 };
+  ValvePhase::_valves[8] = (Valve){ Constants::Valve9P, Constants::Valve9M, -1 };
+  ValvePhase::_valves[9] = (Valve){ Constants::Valve10P, Constants::Valve10M, -1 };
+  ValvePhase::_valves[10] = (Valve){ Constants::Valve11P, Constants::Valve11M, -1 };
+  ValvePhase::_valves[11] = (Valve){ Constants::Valve12P, Constants::Valve12M, -1 };
+  ValvePhase::_valves[12] = (Valve){ Constants::Valve13P, Constants::Valve13M, -1 };
+  ValvePhase::_valves[13] = (Valve){ Constants::Valve14P, Constants::Valve14M, -1 };*/
 
-	if (v2)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v3)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v4)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v5)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v6)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v7)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v8)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v9)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v10)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v11)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v12)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v13)
-	{
-
-	}
-	else
-	{
-
-	}
-
-	if (v14)
-	{
-
-	}
-	else
-	{
-
-	}
+  _activeValves[0] = -1;
+  _activeValves[1] = -1;
+  _activeValves[2] = -1;
+  _activeValves[3] = -1;
+  _activeValves[4] = -1;
+  _activeValves[5] = -1;
+  _activeValves[6] = -1;
+  _activeValves[7] = -1;
+  _activeValves[8] = -1;
+  _activeValves[9] = -1;
+  _activeValves[10] = -1;
+  _activeValves[11] = -1;
+  _activeValves[12] = -1;
+  _activeValves[13] = -1;
 }
 
 /**

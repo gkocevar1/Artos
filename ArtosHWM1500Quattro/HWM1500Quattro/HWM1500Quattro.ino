@@ -7,6 +7,8 @@
 LiquidCrystal _lcd(8, 9, 4, 5, 6, 7);
 StateMachine _sm;
 
+
+
 char* _aFirstLine;
 char* _aSecondLine;
 
