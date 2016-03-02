@@ -20,13 +20,24 @@ class StateMachine
 		* run program
 		*
 		* @param1: program to run
+    * @param2: flag indicates if method is called when machine is turned on. In that case wash program is selected by default and program 1 must be selected as second cycle.
 		*/
-		void runProgram(Constants::Program);
+		void runProgram(Constants::Program, boolean);
 
-		/*
-		Check current cycle progress
+		/**
+    * Check current cycle progress
 		*/
 		void checkProgress();
+
+    /**
+     * is program change allowed (only in fist 2A phase)
+     */
+    boolean isProgramChangeAllowed();
+
+    /**
+     * is wash allowed (only in 2A phase)
+     */
+    boolean isWashAllowed();
    
 		// Cycle sequence. Each cycle has different cycle sequences. 
 		// Each cycle sequence has phase, duration and flag which indicates whether cycle sequence can be interruptable or not
@@ -70,7 +81,8 @@ class StateMachine
     // 1: FILTRATION (Program1 or Program2 or Program3 with Backwash Rusco)
     // 2: BACKWASH (after each program)
     // 3: DESINFECTION
-		Cycle _cycles[4];
+    // 4: CLOSE (only after desinfection)
+		Cycle _cycles[5];
     // Valve phase
     ValvePhase _vp;
     // Current cycle
@@ -79,6 +91,9 @@ class StateMachine
     int _sequenceNumber = 0;
     // Sequence start time
     unsigned long _sequenceStart = 0;
+
+    // flag indicates whether first filtration (2A) phase is already executed or not. if not and current phase is filtration phase, only then change of program is allowed.
+    boolean _isFirst2APhaseExecuted = false;
     
 		/**
 		* init cycles

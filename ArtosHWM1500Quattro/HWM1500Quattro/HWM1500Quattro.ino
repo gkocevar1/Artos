@@ -108,6 +108,7 @@ void loop() {
   // TODO: select between programs(1,2,3) - this can be selected only during first 2A phase (each time)
   // TODO: select wash (special case: this can be selected always during phase 2A)
   // TODO: select desinfection - this can be selected only during first 2A phase (each time) - confirmation needed to close valves and blink with desinfection light
+  // TODO: set wash ligth to on during wash cycle (also when machine is turned on)
   // TODO: reset display to previous values after 5 seconds
   // TODO: display status, 
   // TODO: if service needed blink the light (or display on screen),
@@ -116,8 +117,9 @@ void loop() {
 	if (!_programRunning)
 	{
 		_programRunning = true;
-    // by default Program1 is started
-		_sm.runProgram(Constants::Program::Program1);
+    // when pump is turned on wash program must be executed first 
+    // continue with program 1 when wash is finished
+		_sm.runProgram(Constants::Program::Wash, true);
 	}
 	else
 	{
@@ -128,8 +130,6 @@ void loop() {
   updateDisplay();
   // check if users pressed a button
   checkUserSelection();
-
-  
 }
 
 // -------------------------
@@ -153,8 +153,12 @@ void checkUserSelection()
       delay(300);
       if (!_pressed)
       {
+        DMSG("WASH button is pressed");
         _pressed = true;
-        printToFirstLine("WASH");
+        if (_sm.isWashAllowed())
+        {
+          // TODO: call wash
+        }
       } 
       
       break;
@@ -165,8 +169,13 @@ void checkUserSelection()
       delay(300);
       if (!_pressed)
       {
+        DMSG("ENTER button is pressed");
         _pressed = true;
-        printToFirstLine("ENTER");
+        if (_sm.isProgramChangeAllowed())
+        {
+          // TODO: start with new program
+          //_sm.runProgram(<PROGRAM>, false);
+        }
       } 
       
       break;
@@ -177,8 +186,13 @@ void checkUserSelection()
       delay(300);
       if (!_pressed)
       {
+        DMSG("SELECT button is pressed");
         _pressed = true;
-        printToFirstLine("SELECT");
+        if (_sm.isProgramChangeAllowed())
+        {
+          switchProgram();
+          // TODO: switch between programs (display program on screen)
+        }
       } 
       
       break;
@@ -189,8 +203,9 @@ void checkUserSelection()
       delay(300);
       if (!_pressed)
       {
+        DMSG("STATUS button is pressed");
         _pressed = true;
-        printToFirstLine("STATUS");
+        // TODO: display status
       }  
   
       break;
@@ -247,6 +262,49 @@ int getPressedButton()
   return btnNONE;  // when all others fail, return this...
 }
 
+/**
+ * switch program (switch light and prepare program for selection) 
+ * selection must reset to previous selected items after 5 seconds
+ */
+void switchProgram()
+{
+  switch (_programStateInternal)
+  {
+    case 1:
+    {
+      digitalWrite(Constants::Program1Light, HIGH);
+      digitalWrite(Constants::DesinfectionLight, LOW);
+      printToFirstLine("Select program 1");
+      
+      break;
+    }
+    case 2:
+    {
+      digitalWrite(Constants::Program2Light, HIGH);
+      digitalWrite(Constants::Program1Light, LOW);
+      printToFirstLine("Select program 2");
+      
+      break;
+    }
+    case 3:
+    {
+      digitalWrite(Constants::Program3Light, HIGH);
+      digitalWrite(Constants::Program2Light, LOW);
+      printToFirstLine("Select program 3");
+
+      break;
+    }
+    case 4:
+    {
+      digitalWrite(Constants::DesinfectionLight, HIGH);
+      digitalWrite(Constants::Program3Light, LOW);
+      printToFirstLine("Select desinf.");
+
+      break;
+    }
+  }
+}
+
 // --------------------------
 // LIQUID CRYSTAL
 
@@ -274,6 +332,16 @@ void updateDisplay()
     case Constants::Program::Program3:
     {
       program = "Program: 3";
+      break;
+    }
+    case Constants::Program::Wash:
+    {
+      program = "Program: Wash";
+      break;
+    }
+    case Constants::Program::ProgramDesinfection:
+    {
+      program = "Program: Desinf.";
       break;
     }
   }
