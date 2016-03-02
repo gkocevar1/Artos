@@ -303,12 +303,12 @@ void switchToNextProgram()
     ++_programToSelect;
   }
 
-  DMSG1("Switch to next program: "); DMSG(Constants::ProgramNames[program]);
+  DMSG1("Switch to next program: "); DMSG(Constants::ProgramNames[_programToSelect]);
 
-  setProgramLights(program);
+  setProgramLights(_programToSelect);
 
   printToFirstLine("Select");
-  printToSecondLine(Constants::ProgramNames[program]);
+  printToSecondLine(Constants::ProgramNames[_programToSelect]);
 }
 
 /**
@@ -329,7 +329,7 @@ void checkLastPressedButton()
   }
 }
 
-void setProgramLights(Constants::Program program)
+void setProgramLights(int program) // Constants::Program program
 {
   digitalWrite(Constants::Program1Light, (program == Constants::Program::Program1) ? HIGH : LOW);
   digitalWrite(Constants::Program2Light, (program == Constants::Program::Program2) ? HIGH : LOW);
