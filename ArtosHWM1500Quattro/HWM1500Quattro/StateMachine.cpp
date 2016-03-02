@@ -1,8 +1,10 @@
 #include "StateMachine.h"
 
+// TODO set program after wash period
+
 /**
-  Constructor
-*/
+ * Constructor
+ */
 StateMachine::StateMachine()
 {
   StateMachine::init();
@@ -20,6 +22,13 @@ StateMachine::StateMachine()
 void StateMachine::runProgram(Constants::Program program, boolean start)
 {
   // TODO: do nothing if current running program is the same as new program
+  if (program == StateMachine::runningProgram)
+  {
+    DMSG("Selected program is same as running program");
+    return;
+  }
+  
+  // TODO: do not turn off program light if wash is selected manually
 
   StateMachine::runningProgram = program;
   digitalWrite(Constants::Program1Light, LOW);
@@ -75,7 +84,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         break;
       }
-    case Constants::Program::Close:
+    case Constants::Program::ProgramClose:
       {
         DMSG("StateMachine::runProgram - Close");
 
@@ -88,11 +97,13 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         break;
       }
-    case Constants::Program::Wash:
+    case Constants::Program::ProgramWash:
       {
         DMSG("StateMachine::runProgram - Wash");
         if (start)
         {
+          // program 1 is run automatically when pump is turned on
+          StateMachine::programToRunAfterWash = Constants::Program::Program1;
           // set sequences for program 1
           StateMachine::setFiltrationSequences(Constants::Program::Program1);
           digitalWrite(Constants::Program1Light, HIGH);
@@ -186,6 +197,14 @@ void StateMachine::moveToNextSequence()
   }
   else
   {
+    if (_currentCycle.cycleId == 0) // Wash cycle
+    {
+      // turn off wash light after washing cycle
+      digitalWrite(Constants::WashLight, LOW);
+      // set running program after wash program 
+      StateMachine::runningProgram = StateMachine::programToRunAfterWash;
+    }
+    
     // set program step once everything is completed
     DMSG("Proceed to next cycle");
     if (_currentCycle.nextCycleId != -1)
@@ -375,12 +394,12 @@ void StateMachine::init()
 
   StateMachine::_cycles[4] = cycle5;
 
-  delete sequence;
+  /*delete sequence;
   delete cycle1;
   delete cycle2;
   delete cycle3;
   delete cycle4;
-  delete cycle5;
+  delete cycle5;*/
 }
 
 /**
@@ -395,7 +414,17 @@ void StateMachine::setFiltrationSequences(Constants::Program program)
   }
 
   CycleSequence sequence;
-  for (int i = 0; i < (program / 300); i++)
+  unsigned int duration = Constants::Program1Duration;
+  if (program == Constants::Program::Program2)
+  {
+    duration = Constants::Program2Duration;
+  }
+  else if (program == Constants::Program::Program3)
+  {
+    duration = Constants::Program3Duration;
+  }
+  
+  for (int i = 0; i < (duration / 300); i++)
   {
     if (i % 2 == 0)
     {
