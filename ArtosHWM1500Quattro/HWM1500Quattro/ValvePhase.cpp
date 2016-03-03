@@ -266,18 +266,24 @@ void ValvePhase::switchToPhase(Constants::Phase phase)
 
 /**
    deactive all valves. Set PIN state to LOW
+
+   @param1: delay after deactivation all valves (in milliseconds)
 */
-void ValvePhase::deactivateValves()
+void ValvePhase::deactivateValves(unsigned int delayTime)
 {
+  //DMSG1("ValvePhase::deactivateValves with delay: ");DMSG(delayTime);
   for (int i = 0; i < 14; i++)
   {
     if (_activeValves[i] != -1)
     {
+      DMSG1("D:");DMSG1(_activeValves[i]);DMSG1(" ");
       // deactivate valve
       digitalWrite(_activeValves[i], LOW);
       _activeValves[i] = -1;
     }
   }
+  
+  delay(delayTime);
 }
 
 // ------------------
@@ -304,6 +310,9 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
     "v13:" + ValvePhase::info(v13) + ", " +
     "v14:" + ValvePhase::info(v14));
   DMSG(info);
+  DMSG1(v1);DMSG1(" ");DMSG1(v2);DMSG1(" ");DMSG1(v3);DMSG1(" ");DMSG1(v4);DMSG1(" ");DMSG1(v5);DMSG1(" ");DMSG1(v6);DMSG1(" ");
+  DMSG1(v7);DMSG1(" ");DMSG1(v8);DMSG1(" ");DMSG1(v9);DMSG1(" ");DMSG1(v10);DMSG1(" ");DMSG1(v11);DMSG1(" ");DMSG1(v12);DMSG1(" ");
+  DMSG1(v13);DMSG1(" ");DMSG1(v14);DMSG1(" ");
 
   ValvePhase::activateValve((v1 ? Constants::Valve1P : Constants::Valve1M), 0);
   ValvePhase::activateValve((v2 ? Constants::Valve2P : Constants::Valve2M), 1);

@@ -27,6 +27,14 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
     DMSG("Selected program is same as running program");
     return;
   }
+
+  // new program is selected manually
+  if (!start)
+  {
+    DMSG("Deactivating all valves");
+    // deactivate all valves
+    _vp.deactivateValves(500);
+  }
   
   // TODO: do not turn off program light if wash is selected manually
 
@@ -67,9 +75,16 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         // set sequences for program 3
         digitalWrite(Constants::Program3Light, HIGH);
+
+        DMSG1("before: "); DMSG(StateMachine::_cycles[1].sequences.size());
+        
         StateMachine::setFiltrationSequences(Constants::Program::Program3);
+
+        DMSG1("after: "); DMSG(StateMachine::_cycles[1].sequences.size());
+        
         StateMachine::start(StateMachine::_cycles[1]);
 
+        
 
         break;
       }
@@ -77,7 +92,6 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
       {
         DMSG("StateMachine::runProgram - Desinfection");
 
-        // TODO: force stop all valves
         digitalWrite(Constants::DesinfectionLight, HIGH);
         StateMachine::start(StateMachine::_cycles[3]);
 
@@ -88,9 +102,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
       {
         DMSG("StateMachine::runProgram - Close");
 
-        // TODO: force stop all valves
-
-        // blink desinfection light
+        // TODO change to blink desinfection light
         digitalWrite(Constants::DesinfectionLight, HIGH);
         StateMachine::start(StateMachine::_cycles[4]);
 
@@ -109,7 +121,6 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
           digitalWrite(Constants::Program1Light, HIGH);
         }
 
-        // TODO: force stop all valves
         digitalWrite(Constants::WashLight, HIGH);
         StateMachine::start(StateMachine::_cycles[0]);
 
@@ -131,7 +142,7 @@ void StateMachine::checkProgress()
   else if ((now() + 2) > (StateMachine::getSequenceDuration() + _sequenceStart))
   {
     // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
-    _vp.deactivateValves();
+    _vp.deactivateValves(0);
   }
 
   StateMachine::checkPump();

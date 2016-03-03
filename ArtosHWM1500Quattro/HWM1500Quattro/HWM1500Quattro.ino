@@ -45,7 +45,7 @@ unsigned long _start = now();
 unsigned int _programToSelect = -1;
 
 // last pressed button time (if status / switch between programs button is not pressed for 5 seconds then return display to previous text)
-unsigned long _lastPressed = 0;
+unsigned long _lastPressed = -1;
 
 
 
@@ -113,7 +113,7 @@ void setup() {
 void loop() {
 
   // TODO:DONE select between programs(1,2,3) - this can be selected only during first 2A phase (each time)
-  // TODO: confirm selected program
+  // TODO:DONE confirm selected program
   // TODO: select wash (special case: this can be selected always during phase 2A)
   // TODO: select desinfection - this can be selected only during first 2A phase (each time) - confirmation needed to close valves and blink with desinfection light
   // TODO: set wash ligth to on during wash cycle (also when machine is turned on)
@@ -184,8 +184,13 @@ void checkUserSelection()
           _pressed = true;
           if (_sm.isProgramChangeAllowed())
           {
-            // TODO: start with new program
-            //_sm.runProgram(<PROGRAM>, false);
+            // clear display
+            printToBothLines("", "");
+            
+            Constants::Program program = static_cast<Constants::Program>(_programToSelect);
+            _sm.runProgram(program, false);
+            
+            _programToSelect = -1;
           }
         }
 
@@ -305,7 +310,7 @@ void switchToNextProgram()
 
   DMSG1("Switch to next program: "); DMSG(Constants::ProgramNames[_programToSelect]);
 
-  setProgramLights(_programToSelect);
+  setProgramLights(static_cast<Constants::Program>(_programToSelect));
 
   printToFirstLine("Select");
   printToSecondLine(Constants::ProgramNames[_programToSelect]);
@@ -316,12 +321,12 @@ void switchToNextProgram()
 */
 void checkLastPressedButton()
 {
-  if (_lastPressed > 0 && ((now() - _lastPressed) > 5))
+  if (_lastPressed > -1 && ((now() - _lastPressed) > 5))
   {
     _aFirstLine = "";
     _aSecondLine = "";
 
-    _lastPressed = 0;
+    _lastPressed = -1;
     _programToSelect = -1;
 
     // turn of all lights (program1, program2, program3, desinfection) except running one
@@ -329,7 +334,7 @@ void checkLastPressedButton()
   }
 }
 
-void setProgramLights(int program) // Constants::Program program
+void setProgramLights(Constants::Program program)
 {
   digitalWrite(Constants::Program1Light, (program == Constants::Program::Program1) ? HIGH : LOW);
   digitalWrite(Constants::Program2Light, (program == Constants::Program::Program2) ? HIGH : LOW);
@@ -361,14 +366,20 @@ void printToBothLines(char *textLine1, char *textLine2)
   {
     DMSG("Refresh line 1");
     _aFirstLine = textLine1;
-    printToFirstLine(textLine1);
+    //if (_lastPressed == -1)
+    {
+      printToFirstLine(textLine1);
+    }
   }
 
   if (textLine2 != _aSecondLine)
   {
     DMSG("Refresh line 2");
     _aSecondLine = textLine2;
-    printToSecondLine(textLine2);
+    //if (_lastPressed == -1)
+    {
+      printToSecondLine(textLine2);
+    }
   }
 }
 

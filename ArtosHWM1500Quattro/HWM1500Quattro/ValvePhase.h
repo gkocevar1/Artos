@@ -21,8 +21,10 @@ class ValvePhase
 
     /**
        deactive all valves. Set PIN state to LOW
+
+       @param1: delay after deactivation all valves (in milliseconds)
     */
-    void deactivateValves();
+    void deactivateValves(unsigned int);
 
     // flag indicates whether pump is running or not
     // pump is turned on after 3 seconds
