@@ -17,11 +17,12 @@
    UV light is turned on when pump is running and valve 9 is open.
 */
 
-#include <Vector.h>
+#include <Vector2.h>
 #include <LiquidCrystal.h>
 #include "HWM1500Quattro_debug.h"
 #include "Constants.h"
 #include "StateMachine.h"
+#include "MachineStatus.h"
 
 // button PIN constants
 #define btnRIGHT  0 // flushing
@@ -33,6 +34,7 @@
 
 LiquidCrystal _lcd(8, 9, 4, 5, 6, 7);
 StateMachine _sm;
+MachineStatus _ms;
 
 
 
@@ -118,9 +120,12 @@ void loop() {
   // TODO: select desinfection - this can be selected only during first 2A phase (each time) - confirmation needed to close valves and blink with desinfection light
   // TODO: set wash ligth to on during wash cycle (also when machine is turned on)
   // TODO:DONE reset display to previous values after 5 seconds
-  // TODO: display status,
+  // TODO:DONE display status,
+  // TODO: update operation time
   // TODO: if service needed blink the light (or display on screen),
   // TODO: stop machine if service time exceeded,
+
+  _ms.checkOperationTime();
 
   if (!_programRunning)
   {
@@ -223,9 +228,9 @@ void checkUserSelection()
         {
           DMSG("STATUS button is pressed");
           _pressed = true;
+          displayStatus();
 
           _lastPressed = now();
-          // TODO: display status
         }
 
         break;
@@ -342,6 +347,25 @@ void setProgramLights(Constants::Program program)
   digitalWrite(Constants::DesinfectionLight, (program == Constants::Program::ProgramDesinfection) ? HIGH : LOW);
 }
 
+void displayStatus()
+{
+  printToFirstLine("");
+  _lcd.setCursor(0, 0);
+  _lcd.print("O: ");
+  _lcd.setCursor(2, 0);
+  _lcd.print(_ms.machineStatus.operationTime);
+  _lcd.setCursor(11, 0);
+  _lcd.print("S:");
+  _lcd.setCursor(13, 0);
+  _lcd.print((_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime));
+  
+  printToSecondLine("");
+  _lcd.setCursor(0, 1);
+  _lcd.print("Q: ");
+  _lcd.setCursor(2, 1);
+  _lcd.print(_ms.machineStatus.quarters);
+}
+
 // --------------------------
 // LIQUID CRYSTAL
 
@@ -367,9 +391,9 @@ void printToBothLines(char *textLine1, char *textLine2)
     DMSG("Refresh line 1");
     _aFirstLine = textLine1;
     //if (_lastPressed == -1)
-    {
+    //{
       printToFirstLine(textLine1);
-    }
+    //}
   }
 
   if (textLine2 != _aSecondLine)
@@ -377,9 +401,9 @@ void printToBothLines(char *textLine1, char *textLine2)
     DMSG("Refresh line 2");
     _aSecondLine = textLine2;
     //if (_lastPressed == -1)
-    {
+    //{
       printToSecondLine(textLine2);
-    }
+    //}
   }
 }
 
