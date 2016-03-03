@@ -3,7 +3,9 @@
 
 #include "Arduino.h"
 #include <EEPROM.h>
+#include <Time.h>
 #include "HWM1500Quattro_debug.h"
+#include "Constants.h"
 
 class MachineStatus
 {
@@ -16,9 +18,19 @@ class MachineStatus
 
     /**
        Check operation time
-       Update quarters, and pump operation time
+       Update quarters, and pump operation time at specified period
+
+       return true if service is needed - no cycles will be able to execute
     */
-    void checkOperationTime();
+    boolean checkOperationTime();
+
+    /**
+       Blink light on specified pin (state is changed every 500 millisecond)
+
+       @param1: last check time
+       @param2: pin number
+    */
+    unsigned long blinkLigth(unsigned long, int);
 
     struct Status
     {
@@ -52,8 +64,10 @@ class MachineStatus
     */
     void updateOperationTime();
 
-    // flag indicates that this instance is initialized
-    //boolean _initialized = false;
+    // quarter time
+    long _quarterTime = -1;
+    // last blink check time (for service light - power on light)
+    unsigned long _lastBlinkCheckTime = -1;
 };
 
 #endif

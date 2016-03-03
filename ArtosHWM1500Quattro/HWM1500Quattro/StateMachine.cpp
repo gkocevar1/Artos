@@ -37,12 +37,6 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
   // TODO: do not turn off program light if wash is selected manually
 
-  digitalWrite(Constants::Program1Light, LOW);
-  digitalWrite(Constants::Program2Light, LOW);
-  digitalWrite(Constants::Program3Light, LOW);
-  digitalWrite(Constants::WashLight, LOW);
-  digitalWrite(Constants::DesinfectionLight, LOW);
-
   switch (program)
   {
     case Constants::Program::Program1:
@@ -431,13 +425,6 @@ void StateMachine::init()
   cycle5.sequences.push_back(sequence);
 
   StateMachine::_cycles[4] = cycle5;
-
-  /*delete sequence;
-    delete cycle1;
-    delete cycle2;
-    delete cycle3;
-    delete cycle4;
-    delete cycle5;*/
 }
 
 /**

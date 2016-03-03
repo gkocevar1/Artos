@@ -49,6 +49,9 @@ int _programToSelect = -1;
 // last pressed button time (if status / switch between programs button is not pressed for 5 seconds then return display to previous text)
 long _lastPressed = -1;
 
+// if service is needed, program selection is not allowed except reset counter
+boolean _serviceNeeded = false;
+
 
 
 
@@ -114,35 +117,48 @@ void setup() {
 */
 void loop() {
 
+  // TODO: ce takoj po filtraciji prizges wash, pocakas do konca in pritisnes left(enter) se zgodi nekaj cudnega
+
   // TODO:DONE select between programs(1,2,3) - this can be selected only during first 2A phase (each time)
   // TODO:DONE confirm selected program
-  // TODO: select wash (special case: this can be selected always during phase 2A)
+  // TODO:DONE select wash (special case: this can be selected always during phase 2A)
   // TODO: select desinfection - this can be selected only during first 2A phase (each time) - confirmation needed to close valves and blink with desinfection light
-  // TODO: set wash ligth to on during wash cycle (also when machine is turned on)
+  // TODO:DONE set wash ligth to on during wash cycle (also when machine is turned on)
   // TODO:DONE reset display to previous values after 5 seconds
   // TODO:DONE display status,
-  // TODO: update operation time
-  // TODO: if service needed blink the light (or display on screen),
+  // TODO:DONE update operation time
+  // TODO:DONE if service needed blink the light (or display on screen),
   // TODO: stop machine if service time exceeded,
 
-  _ms.checkOperationTime();
-
-  if (!_programRunning)
+  if (_ms.checkOperationTime())
   {
-    _programRunning = true;
-    // when pump is turned on wash program must be executed first
-    // continue with program 1 when wash is finished
-    _sm.runProgram(Constants::Program::ProgramWash, true);
+    if (!_serviceNeeded)
+    {
+      // only reset is allowed 
+      printToBothLines("Service needed!", "");
+      _serviceNeeded = true;
+    }
   }
   else
   {
-    _sm.checkProgress();
+    if (!_programRunning)
+    {
+      _programRunning = true;
+      // when pump is turned on wash program must be executed first
+      // continue with program 1 when wash is finished
+      _sm.runProgram(Constants::Program::ProgramWash, true);
+    }
+    else
+    {
+      _sm.checkProgress();
+    }
+
+    // update display with text
+    updateDisplay();
   }
 
   // check when buttons were last pressed (set old display values after 5 seconds)
   checkLastPressedButton();
-  // update display with text
-  updateDisplay();
   // check if users pressed a button
   checkUserSelection();
 }
@@ -186,7 +202,7 @@ void checkUserSelection()
         {
           DMSG("ENTER button is pressed");
           _pressed = true;
-          if (_sm.isProgramChangeAllowed())
+          if (_programToSelect != -1 && _sm.isProgramChangeAllowed())
           {
             // clear display
             printToBothLines("", "");
