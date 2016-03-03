@@ -118,6 +118,7 @@ void setup() {
 void loop() {
 
   // TODO: ce takoj po filtraciji prizges wash, pocakas do konca in pritisnes left(enter) se zgodi nekaj cudnega
+  // TODO: mogoce bi lahko omogocili, da lahko uporabnik med washom (samo prvic) izbere kateri program si zeli, vendar mora pocakati do konca wash periode
 
   // TODO:DONE select between programs(1,2,3) - this can be selected only during first 2A phase (each time)
   // TODO:DONE confirm selected program
