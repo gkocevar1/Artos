@@ -74,9 +74,6 @@ class StateMachine
     Constants::Program runningProgram;
     Constants::Phase runningPhase;
 
-    // program to run after wash cycle
-    Constants::Program programToRunAfterWash;
-
   private:
 
     // State machine cycles (predefined cycles)
@@ -91,12 +88,17 @@ class StateMachine
     // Current cycle
     Cycle _currentCycle;
     // Current sequence number of a cycle
-    int _sequenceNumber = 0;
+    unsigned int _sequenceNumber = 0;
     // Sequence start time
     unsigned long _sequenceStart = 0;
 
     // flag indicates whether first filtration (2A) phase is already executed or not. if not and current phase is filtration phase, only then change of program is allowed.
     boolean _isFirst2APhaseExecuted = false;
+
+    // temporary save fields (program must continue, after end on manually triggered wash cycle)
+    int _programSequence = -1;
+    long _programSequenceDuration = -1;
+    Constants::Program _programToRunAfterWash;
 
     /**
       init cycles

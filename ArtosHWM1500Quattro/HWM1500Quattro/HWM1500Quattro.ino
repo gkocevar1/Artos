@@ -44,10 +44,10 @@ boolean _programRunning = false;
 unsigned long _start = now();
 
 // program to select manually (only for internal state)
-unsigned int _programToSelect = -1;
+int _programToSelect = -1;
 
 // last pressed button time (if status / switch between programs button is not pressed for 5 seconds then return display to previous text)
-unsigned long _lastPressed = -1;
+long _lastPressed = -1;
 
 
 
@@ -172,8 +172,7 @@ void checkUserSelection()
           _pressed = true;
           if (_sm.isWashAllowed())
           {
-            // TODO: call wash
-            //_sm.runProgram(Constants::Program::ProgramWash, false);
+            _sm.runProgram(Constants::Program::ProgramWash, false);
           }
         }
 
@@ -326,8 +325,11 @@ void switchToNextProgram()
 */
 void checkLastPressedButton()
 {
+  //DMSG("---------checkLastPressedButton---------------");
+  //DMSG1(_lastPressed);DMSG1(" ");DMSG1(now());
   if (_lastPressed > -1 && ((now() - _lastPressed) > 5))
   {
+    //DMSG("---------IN---------------");
     _aFirstLine = "";
     _aSecondLine = "";
 
