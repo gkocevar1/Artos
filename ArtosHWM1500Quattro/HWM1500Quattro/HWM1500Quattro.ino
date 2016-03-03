@@ -134,7 +134,7 @@ void loop() {
   {
     if (!_serviceNeeded)
     {
-      // only reset is allowed 
+      // only reset is allowed
       printToBothLines("Service needed!", "");
       _serviceNeeded = true;
     }
@@ -184,6 +184,11 @@ void checkUserSelection()
         delay(300);
         if (!_pressed)
         {
+          if (_serviceNeeded)
+          {
+            return;
+          }
+
           DMSG("WASH button is pressed");
           _pressed = true;
           if (_sm.isWashAllowed())
@@ -196,34 +201,18 @@ void checkUserSelection()
       }
     case btnLEFT:
       {
-        // select program (ENTER button on device)
-        delay(300);
-        if (!_pressed)
-        {
-          DMSG("ENTER button is pressed");
-          _pressed = true;
-          if (_programToSelect != -1 && _sm.isProgramChangeAllowed())
-          {
-            // clear display
-            printToBothLines("", "");
-            
-            Constants::Program program = static_cast<Constants::Program>(_programToSelect);
-            _sm.runProgram(program, false);
-            
-            _programToSelect = -1;
-          }
-        }
-
-        break;
-      }
-    case btnSELECT:
-      {
         // choose between options (SELECT button on device)
         delay(300);
         if (!_pressed)
         {
+          if (_serviceNeeded)
+          {
+            return;
+          }
+
           DMSG("SELECT button is pressed");
           _pressed = true;
+
           if (_sm.isProgramChangeAllowed())
           {
             DMSG("CALL SWITCH PROGRAM");
@@ -231,6 +220,31 @@ void checkUserSelection()
 
             _lastPressed = now();
           }
+        }
+
+        break;
+      }
+    case btnSELECT:
+      {
+        // select program (ENTER button on device)
+        delay(300);
+        if (!_pressed)
+        {
+          DMSG("ENTER button is pressed");
+          _pressed = true;
+
+          if (_programToSelect != -1 && _sm.isProgramChangeAllowed())
+          {
+            // clear display
+            printToBothLines("", "");
+
+            Constants::Program program = static_cast<Constants::Program>(_programToSelect);
+            _sm.runProgram(program, false);
+
+            _programToSelect = -1;
+          }
+
+          resetOperationTime(btnSELECT);
         }
 
         break;
@@ -244,6 +258,8 @@ void checkUserSelection()
           DMSG("STATUS button is pressed");
           _pressed = true;
           displayStatus();
+          
+          resetOperationTime(btnUP);
 
           _lastPressed = now();
         }
@@ -376,12 +392,24 @@ void displayStatus()
   _lcd.print("S:");
   _lcd.setCursor(13, 0);
   _lcd.print((_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime));
-  
+
   printToSecondLine("");
   _lcd.setCursor(0, 1);
   _lcd.print("Q: ");
   _lcd.setCursor(2, 1);
   _lcd.print(_ms.machineStatus.quarters);
+}
+
+/**
+   reset operation time
+*/
+void resetOperationTime(int key)
+{
+  DMSG1("reset operation time - key: "); DMSG(key);
+
+  if 
+  printToFirstLine("Counter is reset");
+  printToSecondLine("");
 }
 
 // --------------------------
@@ -410,7 +438,7 @@ void printToBothLines(char *textLine1, char *textLine2)
     _aFirstLine = textLine1;
     //if (_lastPressed == -1)
     //{
-      printToFirstLine(textLine1);
+    printToFirstLine(textLine1);
     //}
   }
 
@@ -420,7 +448,7 @@ void printToBothLines(char *textLine1, char *textLine2)
     _aSecondLine = textLine2;
     //if (_lastPressed == -1)
     //{
-      printToSecondLine(textLine2);
+    printToSecondLine(textLine2);
     //}
   }
 }

@@ -57,6 +57,19 @@ boolean MachineStatus::checkOperationTime()
 }
 
 /**
+   reset operation time (counter)
+
+   to reset operation time following keys must be presed within 5 seconds: 1, 4, 1, 4 (up, select, up, select)
+
+
+   @param1: key
+*/
+boolean MachineStatus::resetOperationTime(int)
+{
+
+}
+
+/**
    Blink light on specified pin (state is changed every 500 millisecond)
 
    @param1: last check time
