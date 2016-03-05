@@ -95,10 +95,10 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
           StateMachine::_programSequenceDuration = now() - StateMachine::_sequenceStart;
           // save program
           StateMachine::_programToRunAfterWash = StateMachine::runningProgram;
-          
-          DMSG1("Sequence: ");DMSG(StateMachine::_programSequence);
-          DMSG1("Sequence duration: ");DMSG(StateMachine::_programSequenceDuration);
-          DMSG1("Program after wash: ");DMSG(StateMachine::_programToRunAfterWash);
+
+          DMSG1("Sequence: "); DMSG(StateMachine::_programSequence);
+          DMSG1("Sequence duration: "); DMSG(StateMachine::_programSequenceDuration);
+          DMSG1("Program after wash: "); DMSG(StateMachine::_programToRunAfterWash);
         }
 
         digitalWrite(Constants::WashLight, HIGH);
@@ -133,18 +133,23 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
 /**
    Check current cycle progress
+
+   skip progress check, if current sequence duration is equals to -1 (unlimited duration)
 */
 void StateMachine::checkProgress()
 {
-  if (now() > (StateMachine::getSequenceDuration() + _sequenceStart))
+  if (StateMachine::getSequenceDuration() > -1)
   {
-    // move to next sequence
-    StateMachine::moveToNextSequence();
-  }
-  else if ((now() + 2) > (StateMachine::getSequenceDuration() + _sequenceStart))
-  {
-    // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
-    _vp.deactivateValves(0);
+    if (now() > (StateMachine::getSequenceDuration() + _sequenceStart))
+    {
+      // move to next sequence
+      StateMachine::moveToNextSequence();
+    }
+    else if ((now() + 2) > (StateMachine::getSequenceDuration() + _sequenceStart))
+    {
+      // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
+      _vp.deactivateValves(0);
+    }
   }
 
   StateMachine::checkPump();
@@ -180,15 +185,15 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
   StateMachine::_sequenceStart = now();
 
   // only if program was interrupted by wash cycle and wash cycle is finished
-  if (StateMachine::_programSequence != -1 && 
-    StateMachine::_programSequenceDuration != -1 &&
-    cycle.cycleId != 0)
+  if (StateMachine::_programSequence != -1 &&
+      StateMachine::_programSequenceDuration != -1 &&
+      cycle.cycleId != 0)
   {
     // set sequence position from last position
     StateMachine::_sequenceNumber = StateMachine::_programSequence;
     // add duration to last sequence duration
     StateMachine::_sequenceStart = now() + StateMachine::_programSequenceDuration;
-    
+
     // reset all
     StateMachine::_programSequence = -1;
     StateMachine::_programSequenceDuration = -1;
@@ -201,9 +206,9 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
   // switch to new phase
   StateMachine::_vp.switchToPhase(StateMachine::runningPhase);
 
-  DMSG1("Sequence: ");DMSG(StateMachine::_sequenceNumber);
-  DMSG1("Now: ");DMSG(now());
-  DMSG1("Sequence start: ");DMSG(StateMachine::_sequenceStart);
+  DMSG1("Sequence: "); DMSG(StateMachine::_sequenceNumber);
+  DMSG1("Now: "); DMSG(now());
+  DMSG1("Sequence start: "); DMSG(StateMachine::_sequenceStart);
 }
 
 /*
@@ -258,8 +263,8 @@ void StateMachine::moveToNextSequence()
   }
 
   // if first backwash rusco phase is started set _isFirst2APhaseExecuted to true. After that changing the program is not allowed any more
-  if (!StateMachine::_isFirst2APhaseExecuted && 
-    StateMachine::runningPhase == Constants::Phase::BackwashRusco)
+  if (!StateMachine::_isFirst2APhaseExecuted &&
+      StateMachine::runningPhase == Constants::Phase::BackwashRusco)
   {
     StateMachine::_isFirst2APhaseExecuted = true;
   }
@@ -404,7 +409,7 @@ void StateMachine::init()
   // Phase: desinfection
   StateMachine::Cycle cycle4;
   cycle4.cycleId = 3;
-  cycle4.nextCycleId = -1; // state machine will stop executing all steps
+  cycle4.nextCycleId = -1;
 
   sequence.phase = Constants::Phase::Desinfection;
   sequence.duration = Constants::DesinfectionDuration;
@@ -417,7 +422,7 @@ void StateMachine::init()
   // Phase: close
   StateMachine::Cycle cycle5;
   cycle5.cycleId = 4;
-  cycle5.nextCycleId = -1; // state machine will stop executing all steps
+  cycle5.nextCycleId = -1; // state machine will stop executing all steps after 10 seconds (close duration)
 
   sequence.phase = Constants::Phase::Close;
   sequence.duration = Constants::CloseDuration;

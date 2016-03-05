@@ -116,13 +116,13 @@ class Constants
       const static int BackwashUF3Duration = 60;
       const static int BackwashUF4Duration = 60;
       const static int FlushingUF2Duration = 60;
-      const static int DesinfectionDuration = 30;
+      const static int DesinfectionDuration = -1;
       const static int CloseDuration = 10;
     */
     const static int FlushingSFRuscoDuration = 5;
     const static int FlushingUF1BDuration = 5;
     const static int FlushingGACDuration = 5;
-    const static int FiltrationDuration = 20; // 1 minute - only for test
+    const static int FiltrationDuration = 20; 
     const static int BackwashRuscoDuration = 5;
     const static int FlushingUF2BDuration = 5;
     const static int BackwashUF1Duration = 5;
@@ -130,7 +130,7 @@ class Constants
     const static int BackwashUF3Duration = 5;
     const static int BackwashUF4Duration = 5;
     const static int FlushingUF2GDuration = 5;
-    const static int DesinfectionDuration = 10;
+    const static int DesinfectionDuration = -1; // desinfection duration never ends
     const static int CloseDuration = 10;
 };
 

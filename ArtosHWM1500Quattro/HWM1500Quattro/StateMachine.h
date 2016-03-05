@@ -25,7 +25,9 @@ class StateMachine
     void runProgram(Constants::Program, boolean);
 
     /**
-      Check current cycle progress
+       Check current cycle progress
+    
+       skip progress check, if current sequence duration is equals to -1 (unlimited duration)
     */
     void checkProgress();
 

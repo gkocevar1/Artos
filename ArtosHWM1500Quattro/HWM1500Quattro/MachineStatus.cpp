@@ -23,7 +23,7 @@ boolean MachineStatus::checkOperationTime()
   if (_resetCounterTime != -1 && (now() - _resetCounterTime) > 5)
   {
     _resetCounterTime = -1;
-    _userPressCombination.clear()
+    _userPressCombination.clear();
   }
   
   // find time from last service
@@ -71,8 +71,8 @@ boolean MachineStatus::checkOperationTime()
    @param1: key
 */
 
-int _matchCombination[] = {1, 4, 1, 4};
-boolean MachineStatus::resetOperationTime(int)
+int MachineStatus::_matchCombination[] = {1, 4, 1, 4};
+boolean MachineStatus::resetOperationTime(int key)
 {
   if (_resetCounterTime == -1)
   {
@@ -83,30 +83,29 @@ boolean MachineStatus::resetOperationTime(int)
   _userPressCombination.push_back(key);
   if (_userPressCombination.size() == 4)
   {
-    boolean match = true;
     for(int i = 0; i < 4; i++)
     {
       // if one of input combination doesn't match, clear everything
-      if (_matchCombination[i] != _userPressCombination[i])
+      if (MachineStatus::_matchCombination[i] != _userPressCombination[i])
       {
-        _userPressCombination.clear()
-        match = false;
-        break;
+        _userPressCombination.clear();
+        return false;
       }
     }
 
-    if (match)
-    {
-      DMSG("RESET Service Counter");
-      
-      machineStatus.serviceTime = machineStatus.operationTime;
-      machineStatus.operationTime = 1;
-      
-      //MachineStatus::updateOperationTime();
-      _resetCounterTime = -1;
-      _userPressCombination.clear()
-    }
+    DMSG("RESET Service Counter");
+    
+    machineStatus.serviceTime = machineStatus.operationTime;
+    machineStatus.operationTime = 1;
+    
+    //MachineStatus::updateOperationTime();
+    _resetCounterTime = -1;
+    _userPressCombination.clear();
+
+    return true;
   }
+
+  return false;
 }
 
 /**

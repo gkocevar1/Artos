@@ -50,6 +50,7 @@ int _programToSelect = -1;
 long _lastPressed = -1;
 
 // if service is needed, program selection is not allowed except reset counter
+// when this flag is set to true, nothing is working
 boolean _serviceNeeded = false;
 
 /*
@@ -134,6 +135,8 @@ void loop() {
       // only reset is allowed
       printToBothLines("Service needed!", "");
       _serviceNeeded = true;
+
+      // turn off pump, all program lights, force stop valves
     }
   }
   else
@@ -159,11 +162,6 @@ void loop() {
   // check if users pressed a button
   checkUserSelection();
 }
-
-// -------------------------
-// AUTOMATIC SELECTIONS
-
-
 
 // --------------------------
 // USER SELECTION
@@ -230,7 +228,11 @@ void checkUserSelection()
           DMSG("ENTER button is pressed");
           _pressed = true;
 
-          if (_programToSelect != -1 && _sm.isProgramChangeAllowed())
+          if (_sm.runningPhase == Constants::Phase::Desinfection)
+          {
+            _sm.runProgram(Constants::Program::ProgramClose, false);
+          }
+          else if (_programToSelect != -1 && _sm.isProgramChangeAllowed())
           {
             // clear display
             printToBothLines("", "");
@@ -390,11 +392,10 @@ void displayStatus()
   _lcd.setCursor(13, 0);
   _lcd.print((_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime));
 
-  printToSecondLine("");
-  _lcd.setCursor(0, 1);
-  _lcd.print("Q: ");
-  _lcd.setCursor(2, 1);
-  _lcd.print(_ms.machineStatus.quarters);
+  String s = String("Q:" + _ms.machineStatus.quarters);
+  char *c = new char[s.length() + 1];
+  printToSecondLine(c);
+  delete c;
 }
 
 /**
@@ -404,9 +405,18 @@ void resetOperationTime(int key)
 {
   DMSG1("reset operation time - key: "); DMSG(key);
 
-  //if 
-  printToFirstLine("Counter is reset");
-  printToSecondLine("");
+  if (_ms.resetOperationTime(key))
+  { 
+    printToFirstLine("Counter is reset");
+    printToSecondLine("");
+    if (_serviceNeeded)
+    {
+      printToSecondLine("Starting wash");
+      _serviceNeeded = false;
+      
+      delay(1000);
+    }
+  }
 }
 
 // --------------------------
@@ -469,11 +479,12 @@ void printToSecondLine(char *text)
 /*
   print text to LCD
 */
+char* emptyLine = "                ";
 void printToLCD(char* text, int column, int line, boolean clearLine)
 {
   if (clearLine)
   {
-    printToLCDLine("                ", column, line);
+    printToLCDLine(emptyLine, column, line);
   }
 
   printToLCDLine(text, column, line);

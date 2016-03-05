@@ -310,10 +310,7 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
     "v13:" + ValvePhase::info(v13) + ", " +
     "v14:" + ValvePhase::info(v14));
   DMSG(info);
-  DMSG1(v1);DMSG1(" ");DMSG1(v2);DMSG1(" ");DMSG1(v3);DMSG1(" ");DMSG1(v4);DMSG1(" ");DMSG1(v5);DMSG1(" ");DMSG1(v6);DMSG1(" ");
-  DMSG1(v7);DMSG1(" ");DMSG1(v8);DMSG1(" ");DMSG1(v9);DMSG1(" ");DMSG1(v10);DMSG1(" ");DMSG1(v11);DMSG1(" ");DMSG1(v12);DMSG1(" ");
-  DMSG1(v13);DMSG1(" ");DMSG1(v14);DMSG1(" ");
-
+ 
   ValvePhase::activateValve((v1 ? Constants::Valve1P : Constants::Valve1M), 0);
   ValvePhase::activateValve((v2 ? Constants::Valve2P : Constants::Valve2M), 1);
   ValvePhase::activateValve((v3 ? Constants::Valve3P : Constants::Valve3M), 2);
@@ -354,21 +351,6 @@ void ValvePhase::activateValve(int valveId, int pos)
 */
 void ValvePhase::init()
 {
-  /*ValvePhase::_valves[0] = (Valve){ Constants::Valve1P, Constants::Valve1M, -1 };
-    ValvePhase::_valves[1] = (Valve){ Constants::Valve2P, Constants::Valve2M, -1 };
-    ValvePhase::_valves[2] = (Valve){ Constants::Valve3P, Constants::Valve3M, -1 };
-    ValvePhase::_valves[3] = (Valve){ Constants::Valve4P, Constants::Valve4M, -1 };
-    ValvePhase::_valves[4] = (Valve){ Constants::Valve5P, Constants::Valve5M, -1 };
-    ValvePhase::_valves[5] = (Valve){ Constants::Valve6P, Constants::Valve6M, -1 };
-    ValvePhase::_valves[6] = (Valve){ Constants::Valve7P, Constants::Valve7M, -1 };
-    ValvePhase::_valves[7] = (Valve){ Constants::Valve8P, Constants::Valve8M, -1 };
-    ValvePhase::_valves[8] = (Valve){ Constants::Valve9P, Constants::Valve9M, -1 };
-    ValvePhase::_valves[9] = (Valve){ Constants::Valve10P, Constants::Valve10M, -1 };
-    ValvePhase::_valves[10] = (Valve){ Constants::Valve11P, Constants::Valve11M, -1 };
-    ValvePhase::_valves[11] = (Valve){ Constants::Valve12P, Constants::Valve12M, -1 };
-    ValvePhase::_valves[12] = (Valve){ Constants::Valve13P, Constants::Valve13M, -1 };
-    ValvePhase::_valves[13] = (Valve){ Constants::Valve14P, Constants::Valve14M, -1 };*/
-
   _activeValves[0] = -1;
   _activeValves[1] = -1;
   _activeValves[2] = -1;

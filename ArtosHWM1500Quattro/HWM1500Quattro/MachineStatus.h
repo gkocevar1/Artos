@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include <EEPROM.h>
 #include <Time.h>
-#include <Vector.h>
+#include <Vector2.h>
 #include "HWM1500Quattro_debug.h"
 #include "Constants.h"
 
