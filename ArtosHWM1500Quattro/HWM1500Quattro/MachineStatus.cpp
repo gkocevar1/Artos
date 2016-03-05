@@ -19,6 +19,13 @@ MachineStatus::MachineStatus()
 */
 boolean MachineStatus::checkOperationTime()
 {
+  // reset resetCounterTime if user didn't match reset combination, also clear all user presses
+  if (_resetCounterTime != -1 && (now() - _resetCounterTime) > 5)
+  {
+    _resetCounterTime = -1;
+    _userPressCombination.clear()
+  }
+  
   // find time from last service
   long timeFromService = machineStatus.operationTime - machineStatus.serviceTime;
   if (timeFromService >= 390)
@@ -59,14 +66,47 @@ boolean MachineStatus::checkOperationTime()
 /**
    reset operation time (counter)
 
-   to reset operation time following keys must be presed within 5 seconds: 1, 4, 1, 4 (up, select, up, select)
-
+   to reset operation time following keys must be presed within 5 seconds: 1, 4, 1, 4 (up, select (enter), up, select (enter))
 
    @param1: key
 */
+
+int _matchCombination[] = {1, 4, 1, 4};
 boolean MachineStatus::resetOperationTime(int)
 {
+  if (_resetCounterTime == -1)
+  {
+    // set reset counter
+    _resetCounterTime = now();
+  }
 
+  _userPressCombination.push_back(key);
+  if (_userPressCombination.size() == 4)
+  {
+    boolean match = true;
+    for(int i = 0; i < 4; i++)
+    {
+      // if one of input combination doesn't match, clear everything
+      if (_matchCombination[i] != _userPressCombination[i])
+      {
+        _userPressCombination.clear()
+        match = false;
+        break;
+      }
+    }
+
+    if (match)
+    {
+      DMSG("RESET Service Counter");
+      
+      machineStatus.serviceTime = machineStatus.operationTime;
+      machineStatus.operationTime = 1;
+      
+      //MachineStatus::updateOperationTime();
+      _resetCounterTime = -1;
+      _userPressCombination.clear()
+    }
+  }
 }
 
 /**

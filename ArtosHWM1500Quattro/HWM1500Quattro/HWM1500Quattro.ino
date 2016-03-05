@@ -9,12 +9,14 @@
    Wash program is active during all 2A phases. When user press on wash button, phases 1A to 1C are executed.
    Once wash program is completed, 2A phase is continue for selected program.
 
-
-   Desinfection program can be selected only during first 2A phase. If desinfection is selected, valves must be moved to proper positions.
-   Nothing else can be selected during that phase. Only enter button must be active. By pressing the end button all vales will be moved to close position.
-   Desinfection light must blink during period. TODO: find out how many seconds.
+   Desinfection program can be selected only during first 2A phase. If desinfection is selected, valves must be moved to proper positions. Duration of desinfaction
+   phase is unlimited. Nothing else can be selected during that phase. Only enter button must be active. 
+   By pressing the enter button all valves will be moved to close position. Desinfection light must blink during close period.
 
    UV light is turned on when pump is running and valve 9 is open.
+
+   To reset service timer press within 5 second status, enter, status, enter button. 
+   TODO: Possible update: press status button for 5 seconds and then within 5 second press status, enter, status, enter button.
 */
 
 #include <Vector2.h>
@@ -36,8 +38,6 @@ LiquidCrystal _lcd(8, 9, 4, 5, 6, 7);
 StateMachine _sm;
 MachineStatus _ms;
 
-
-
 char* _aFirstLine;
 char* _aSecondLine;
 boolean _programRunning = false;
@@ -51,11 +51,6 @@ long _lastPressed = -1;
 
 // if service is needed, program selection is not allowed except reset counter
 boolean _serviceNeeded = false;
-
-
-
-
-
 
 /*
   Setup program parameters
@@ -128,6 +123,7 @@ void loop() {
   // TODO:DONE reset display to previous values after 5 seconds
   // TODO:DONE display status,
   // TODO:DONE update operation time
+  // TODO: reset service counter
   // TODO:DONE if service needed blink the light (or display on screen),
   // TODO: stop machine if service time exceeded,
 
@@ -408,7 +404,7 @@ void resetOperationTime(int key)
 {
   DMSG1("reset operation time - key: "); DMSG(key);
 
-  if 
+  //if 
   printToFirstLine("Counter is reset");
   printToSecondLine("");
 }

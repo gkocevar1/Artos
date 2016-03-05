@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include <EEPROM.h>
 #include <Time.h>
+#include <Vector.h>
 #include "HWM1500Quattro_debug.h"
 #include "Constants.h"
 
@@ -78,6 +79,13 @@ class MachineStatus
     long _quarterTime = -1;
     // last blink check time (for service light - power on light)
     unsigned long _lastBlinkCheckTime = -1;
+
+    // service reset function match combination
+    static int _matchCombination[];
+    // service timer (combination must be pressed with 5 seconds)
+    long _resetCounterTime = -1;
+    // user press combination
+    Vector<int> _userPressCombination;
 };
 
 #endif
