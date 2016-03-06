@@ -41,6 +41,11 @@ class StateMachine
     */
     boolean isWashAllowed();
 
+    /**
+       deactive all valves. Set PIN state to LOW
+    */
+    void deactivateValves();
+
     // Cycle sequence. Each cycle has different cycle sequences.
     // Each cycle sequence has phase, duration and flag which indicates whether cycle sequence can be interruptable or not
     // Interrupt means new program can be selected
@@ -126,7 +131,7 @@ class StateMachine
     /*
       get sequence duration in seconds
     */
-    unsigned long getSequenceDuration();
+    int getSequenceDuration();
 
     /**
        save running phase

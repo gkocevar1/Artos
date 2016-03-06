@@ -103,9 +103,6 @@ void setup() {
   pinMode(Constants::PumpLight, OUTPUT);
   pinMode(Constants::UVLight, OUTPUT);
   pinMode(Constants::PowerOnLight, OUTPUT);
-  delay(100);
-  // turn on power light
-  digitalWrite(Constants::PowerOnLight, HIGH);
 }
 
 /*
@@ -137,12 +134,25 @@ void loop() {
       _serviceNeeded = true;
 
       // turn off pump, all program lights, force stop valves
+      _programRunning = false;
+      digitalWrite(Constants::Program1Light, LOW);
+      digitalWrite(Constants::Program2Light, LOW);
+      digitalWrite(Constants::Program3Light, LOW);
+      digitalWrite(Constants::DesinfectionLight, LOW);
+      digitalWrite(Constants::WashLight, LOW);
+      digitalWrite(Constants::PumpLight, LOW);
+      digitalWrite(Constants::UVLight, LOW);
+      _sm.deactivateValves();
     }
   }
   else
   {
     if (!_programRunning)
     {
+      delay(100);
+      // turn on power light
+      digitalWrite(Constants::PowerOnLight, HIGH);
+      
       _programRunning = true;
       // when pump is turned on wash program must be executed first
       // continue with program 1 when wash is finished
@@ -230,10 +240,12 @@ void checkUserSelection()
 
           if (_sm.runningPhase == Constants::Phase::Desinfection)
           {
+            DMSG("test1");
             _sm.runProgram(Constants::Program::ProgramClose, false);
           }
           else if (_programToSelect != -1 && _sm.isProgramChangeAllowed())
           {
+            DMSG("test2");
             // clear display
             printToBothLines("", "");
 
@@ -356,20 +368,19 @@ void switchToNextProgram()
 */
 void checkLastPressedButton()
 {
-  //DMSG("---------checkLastPressedButton---------------");
-  //DMSG1(_lastPressed);DMSG1(" ");DMSG1(now());
-  if (_lastPressed > -1 && ((now() - _lastPressed) > 5))
+  if (_lastPressed == -1 || ((now() - _lastPressed) < 6))
   {
-    //DMSG("---------IN---------------");
-    _aFirstLine = "";
-    _aSecondLine = "";
-
-    _lastPressed = -1;
-    _programToSelect = -1;
-
-    // turn of all lights (program1, program2, program3, desinfection) except running one
-    setProgramLights(_sm.runningProgram);
+    return;
   }
+  
+  _aFirstLine = "";
+  _aSecondLine = "";
+
+  _lastPressed = -1;
+  _programToSelect = -1;
+
+  // turn of all lights (program1, program2, program3, desinfection) except running one
+  setProgramLights(_sm.runningProgram);
 }
 
 void setProgramLights(Constants::Program program)
@@ -392,10 +403,11 @@ void displayStatus()
   _lcd.setCursor(13, 0);
   _lcd.print((_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime));
 
-  String s = String("Q:" + _ms.machineStatus.quarters);
-  char *c = new char[s.length() + 1];
-  printToSecondLine(c);
-  delete c;
+  printToSecondLine("");
+  _lcd.setCursor(0, 1);
+  _lcd.print("Q: ");
+  _lcd.setCursor(2, 1);
+  _lcd.print(_ms.machineStatus.quarters);
 }
 
 /**
@@ -409,6 +421,8 @@ void resetOperationTime(int key)
   { 
     printToFirstLine("Counter is reset");
     printToSecondLine("");
+    _lastPressed = -1;
+    
     if (_serviceNeeded)
     {
       printToSecondLine("Starting wash");
@@ -441,7 +455,7 @@ void printToBothLines(char *textLine1, char *textLine2)
 {
   if (textLine1 != _aFirstLine)
   {
-    DMSG("Refresh line 1");
+    //DMSG("Refresh line 1");
     _aFirstLine = textLine1;
     //if (_lastPressed == -1)
     //{
@@ -451,7 +465,7 @@ void printToBothLines(char *textLine1, char *textLine2)
 
   if (textLine2 != _aSecondLine)
   {
-    DMSG("Refresh line 2");
+    //DMSG("Refresh line 2");
     _aSecondLine = textLine2;
     //if (_lastPressed == -1)
     //{

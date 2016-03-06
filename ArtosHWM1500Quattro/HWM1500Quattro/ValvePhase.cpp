@@ -16,7 +16,7 @@ ValvePhase::ValvePhase()
 */
 void ValvePhase::switchToPhase(Constants::Phase phase)
 {
-  DMSG1("New Phase: "); DMSG(Constants::PhaseNames[phase]);
+  //DMSG1("New Phase: "); DMSG(Constants::PhaseNames[phase]);
 
   switch (phase)
   {
@@ -276,7 +276,7 @@ void ValvePhase::deactivateValves(unsigned int delayTime)
   {
     if (_activeValves[i] != -1)
     {
-      DMSG1("D:");DMSG1(_activeValves[i]);DMSG1(" ");
+      //DMSG1("D:");DMSG1(_activeValves[i]);DMSG1(" ");
       // deactivate valve
       digitalWrite(_activeValves[i], LOW);
       _activeValves[i] = -1;
@@ -294,7 +294,7 @@ void ValvePhase::deactivateValves(unsigned int delayTime)
 */
 void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, boolean v5, boolean v6, boolean v7, boolean v8, boolean v9, boolean v10, boolean v11, boolean v12, boolean v13, boolean v14)
 {
-  String info = String(
+  /*String info = String(
     "v1:" + ValvePhase::info(v1) + ", " +
     "v2:" + ValvePhase::info(v2) + ", " +
     "v3:" + ValvePhase::info(v3) + ", " +
@@ -309,7 +309,7 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
     "v12:" + ValvePhase::info(v12) + ", " +
     "v13:" + ValvePhase::info(v13) + ", " +
     "v14:" + ValvePhase::info(v14));
-  DMSG(info);
+  DMSG(info);*/
  
   ValvePhase::activateValve((v1 ? Constants::Valve1P : Constants::Valve1M), 0);
   ValvePhase::activateValve((v2 ? Constants::Valve2P : Constants::Valve2M), 1);
@@ -326,7 +326,7 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
   ValvePhase::activateValve((v13 ? Constants::Valve13P : Constants::Valve13M), 12);
   ValvePhase::activateValve((v14 ? Constants::Valve14P : Constants::Valve14M), 13);
 
-  DMSG("");
+  //DMSG("");
 
   // UV light is turned on when pump is running and valve 9 is open.
   digitalWrite(Constants::UVLight, ((pumpRunning && v9) ? HIGH : LOW));
@@ -339,7 +339,7 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
 */
 void ValvePhase::activateValve(int valveId, int pos)
 {
-  DMSG1(valveId); DMSG1(" ");
+  //DMSG1(valveId); DMSG1(" ");
   // save active valve
   _activeValves[pos] = valveId;
   // open valve

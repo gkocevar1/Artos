@@ -82,7 +82,6 @@ class Constants
     };
 
     // Programs
-    // Program1, Program2 and Program3 contains actual duration time
     enum Program
     {
       Program1 = 0,

@@ -79,6 +79,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
         DMSG("StateMachine::runProgram - Wash");
         if (start)
         {
+          DMSG("Start with new");
           // program 1 is run automatically when pump is turned on
           StateMachine::_programToRunAfterWash = Constants::Program::Program1;
           // set sequences for program 1
@@ -138,14 +139,15 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 */
 void StateMachine::checkProgress()
 {
-  if (StateMachine::getSequenceDuration() > -1)
+  int duration = StateMachine::getSequenceDuration();
+  if (duration > -1)
   {
-    if (now() > (StateMachine::getSequenceDuration() + _sequenceStart))
+    if (now() > (duration + _sequenceStart))
     {
       // move to next sequence
       StateMachine::moveToNextSequence();
     }
-    else if ((now() + 2) > (StateMachine::getSequenceDuration() + _sequenceStart))
+    else if ((now() + 2) > (duration + _sequenceStart))
     {
       // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
       _vp.deactivateValves(0);
@@ -169,6 +171,16 @@ boolean StateMachine::isProgramChangeAllowed()
 boolean StateMachine::isWashAllowed()
 {
   return StateMachine::runningPhase == Constants::Phase::Filtration;
+}
+
+/**
+   deactive all valves. Set PIN state to LOW
+*/
+void StateMachine::deactivateValves()
+{
+  DMSG("ValvePhase::deactivateValves");
+  // deactivate all valves
+  _vp.deactivateValves(500);
 }
 
 // ------------------
@@ -205,10 +217,6 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
   StateMachine::saveRunningPhase();
   // switch to new phase
   StateMachine::_vp.switchToPhase(StateMachine::runningPhase);
-
-  DMSG1("Sequence: "); DMSG(StateMachine::_sequenceNumber);
-  DMSG1("Now: "); DMSG(now());
-  DMSG1("Sequence start: "); DMSG(StateMachine::_sequenceStart);
 }
 
 /*
@@ -277,9 +285,10 @@ void StateMachine::moveToNextSequence()
 */
 void StateMachine::checkPump()
 {
-  // turn pump off during 2AA phase (backwash rusco) or desinfection phase
+  // turn pump off during 2AA phase (backwash rusco) or desinfection phase and close phase
   if (StateMachine::runningPhase == Constants::Phase::BackwashRusco ||
-      StateMachine::runningPhase == Constants::Phase::Desinfection)
+      StateMachine::runningPhase == Constants::Phase::Desinfection ||
+      StateMachine::runningPhase == Constants::Phase::Close)
   {
     if (_vp.pumpRunning)
     {
@@ -307,9 +316,9 @@ void StateMachine::checkPump()
 }
 
 /*
-  get sequence duration in milliseconds
+  get sequence duration in seconds
 */
-unsigned long StateMachine::getSequenceDuration()
+int StateMachine::getSequenceDuration()
 {
   return _currentCycle.sequences[_sequenceNumber].duration;
 }

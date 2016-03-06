@@ -45,6 +45,9 @@ class MachineStatus
 
     struct Status
     {
+       // special configuration version
+      char version[4];
+      
       // pump total operation time (in hours)
       unsigned int operationTime;
 

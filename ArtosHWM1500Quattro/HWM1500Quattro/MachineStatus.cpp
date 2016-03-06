@@ -1,5 +1,7 @@
 #include "MachineStatus.h"
 
+#define CONFIG_VERSION "c01"
+
 /**
    Constructor
 */
@@ -19,27 +21,6 @@ MachineStatus::MachineStatus()
 */
 boolean MachineStatus::checkOperationTime()
 {
-  // reset resetCounterTime if user didn't match reset combination, also clear all user presses
-  if (_resetCounterTime != -1 && (now() - _resetCounterTime) > 5)
-  {
-    _resetCounterTime = -1;
-    _userPressCombination.clear();
-  }
-  
-  // find time from last service
-  long timeFromService = machineStatus.operationTime - machineStatus.serviceTime;
-  if (timeFromService >= 390)
-  {
-    // service will be needed soon, just blink with light
-    _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);
-  }
-  else if (timeFromService >= 400)
-  {
-    // service is required immediatelly, do not start with wash cycle
-    _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);
-    return true;
-  }
-
   unsigned long current = now();
   // update quarter immediately after pump is turned on
   if (_quarterTime == -1 || (current - _quarterTime > (15 * 60)))
@@ -54,10 +35,31 @@ boolean MachineStatus::checkOperationTime()
       machineStatus.quarters = 1;
     }
 
-    DMSG1("Update operation time to: "); DMSG(machineStatus.operationTime);
-    DMSG1("Update quarters to: "); DMSG(machineStatus.quarters);
+    //DMSG1("Update operation time to: "); DMSG(machineStatus.operationTime);
+    //DMSG1("Update quarters to: "); DMSG(machineStatus.quarters);
 
-    //MachineStatus::updateOperationTime();
+    MachineStatus::updateOperationTime();
+  }
+  
+  // reset resetCounterTime if user didn't match reset combination, also clear all user presses
+  if (_resetCounterTime != -1 && (now() - _resetCounterTime) > 5)
+  {
+    _resetCounterTime = -1;
+    _userPressCombination.clear();
+  }
+  
+  // find time from last service
+  long timeFromService = machineStatus.operationTime - machineStatus.serviceTime;
+  if (timeFromService >= 400)
+  {
+    // service is required immediatelly, do not start with wash cycle
+    _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);
+    return true;
+  }
+  else if (timeFromService >= 390)
+  {
+    // service will be needed soon, just blink with light
+    _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);
   }
 
   return false;
@@ -94,11 +96,18 @@ boolean MachineStatus::resetOperationTime(int key)
     }
 
     DMSG("RESET Service Counter");
+    //DMSG(machineStatus.operationTime);
+    //DMSG(machineStatus.serviceTime);
+    //DMSG(machineStatus.quarters);
     
     machineStatus.serviceTime = machineStatus.operationTime;
-    machineStatus.operationTime = 1;
+    machineStatus.quarters = 1;
+
+    //DMSG(machineStatus.operationTime);
+    //DMSG(machineStatus.serviceTime);
+    //DMSG(machineStatus.quarters);
     
-    //MachineStatus::updateOperationTime();
+    MachineStatus::updateOperationTime();
     _resetCounterTime = -1;
     _userPressCombination.clear();
 
@@ -137,11 +146,28 @@ unsigned long MachineStatus::blinkLigth(unsigned long milliSecs, int pin)
 */
 void MachineStatus::init()
 {
-  for (unsigned int t = 0; t < sizeof(machineStatus); t++) {
-    *((char*)&machineStatus + t) = EEPROM.read(t);
-  }
+  if (EEPROM.read(0) == CONFIG_VERSION[0] &&
+      EEPROM.read(1) == CONFIG_VERSION[1] &&
+      EEPROM.read(2) == CONFIG_VERSION[2]) 
+  {
+    for (unsigned int t = 0; t < sizeof(machineStatus); t++) {
+      *((char*)&machineStatus + t) = EEPROM.read(t);
+    }
 
-  //machineStatus.operationTime = 391;
+    // only for test
+    machineStatus.operationTime = 399;
+    machineStatus.quarters = 4;
+  }
+  else
+  {
+    // init status data at first startup
+    strcpy(machineStatus.version, CONFIG_VERSION);
+    machineStatus.operationTime = 0;
+    machineStatus.serviceTime = 0;
+    machineStatus.quarters = 0;
+
+    MachineStatus::updateOperationTime();
+  }
 }
 
 /**
@@ -149,6 +175,8 @@ void MachineStatus::init()
 */
 void MachineStatus::updateOperationTime()
 {
+  return;
+  
   for (unsigned int t = 0; t < sizeof(machineStatus); t++) {
     EEPROM.write(t, *((char*)&machineStatus + t));
   }
