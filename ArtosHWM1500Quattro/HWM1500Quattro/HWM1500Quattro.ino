@@ -52,9 +52,6 @@ long _lastPressed = -1;
 boolean _serviceNeeded = false;
 // last blink check time (for desinfection light - when close program is in progress)
 long _lastBlinkCheckTime = -1;
-// flag indicates that close phase is finished
-boolean _closeFinished = false;
-
 
 /*
   Setup program parameters
@@ -166,7 +163,7 @@ void loop() {
         else if (_sm.runningProgram == Constants::Program::ProgramNone)
         {
           idle();
-          // TODO: set text
+          printToSecondLine("ends. Turn off.");
         }
       }
     }
@@ -209,7 +206,7 @@ void idle()
 boolean _pressed = false;
 void checkUserSelection()
 {
-  if (_closeFinished)
+  if (_sm.runningProgram == Constants::Program::ProgramNone)
   {
     return;
   }
@@ -476,7 +473,7 @@ void resetOperationTime(int key)
 */
 void updateDisplay()
 {
-  if (_closeFinished)
+  if (_sm.runningProgram == Constants::Program::ProgramNone)
   {
     return;
   }
