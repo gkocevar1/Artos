@@ -155,8 +155,8 @@ void MachineStatus::init()
     }
 
     // only for test
-    machineStatus.operationTime = 399;
-    machineStatus.quarters = 4;
+    //machineStatus.operationTime = 399;
+    //machineStatus.quarters = 4;
   }
   else
   {

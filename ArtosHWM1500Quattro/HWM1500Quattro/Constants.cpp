@@ -14,7 +14,7 @@ char* Constants::PhaseNames[] =
   "Backwash UF4",   //9  - BackwashUF4 - 2F
   "Flushing UF",    //10 - FlushingUF2G - 2G
   "Desinfection",   //11 - Desinfection
-  "Close"           //12 - Close
+  "Closing valves"           //12 - Close
 };
 
 char* Constants::ProgramNames[] =
@@ -23,7 +23,8 @@ char* Constants::ProgramNames[] =
   "Program: 2", //1 - Program2
   "Program: 3", //2 - Program3
   "Program: Desinf.", //3 - ProgramDesinfection
-  "Program: Wash" //4 - Wash
+  "Program: Wash", //4 - Wash
+  "Program: Desinf." // 5 - Close part of program desinfection
 };
 
 
