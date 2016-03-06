@@ -83,30 +83,6 @@ class StateMachine
 
   private:
 
-    // State machine cycles (predefined cycles)
-    // 0: WASH (Init)
-    // 1: FILTRATION (Program1 or Program2 or Program3 with Backwash Rusco)
-    // 2: BACKWASH (after each program)
-    // 3: DESINFECTION
-    // 4: CLOSE (only after desinfection)
-    Cycle _cycles[5];
-    // Valve phase
-    ValvePhase _vp;
-    // Current cycle
-    Cycle _currentCycle;
-    // Current sequence number of a cycle
-    unsigned int _sequenceNumber = 0;
-    // Sequence start time
-    unsigned long _sequenceStart = 0;
-
-    // flag indicates whether first filtration (2A) phase is already executed or not. if not and current phase is filtration phase, only then change of program is allowed.
-    boolean _isFirst2APhaseExecuted = false;
-
-    // temporary save fields (program must continue, after end on manually triggered wash cycle)
-    int _programSequence = -1;
-    long _programSequenceDuration = -1;
-    Constants::Program _programToRunAfterWash;
-
     /**
       init cycles
     */
@@ -144,6 +120,30 @@ class StateMachine
        pump is turned off on desinfection phase or 2AA phase
     */
     void checkPump();
+
+    // State machine cycles (predefined cycles)
+    // 0: WASH (Init)
+    // 1: FILTRATION (Program1 or Program2 or Program3 with Backwash Rusco)
+    // 2: BACKWASH (after each program)
+    // 3: DESINFECTION
+    // 4: CLOSE (only after desinfection)
+    Cycle _cycles[5];
+    // Valve phase
+    ValvePhase _vp;
+    // Current cycle
+    Cycle _currentCycle;
+    // Current sequence number of a cycle
+    unsigned int _sequenceNumber = 0;
+    // Sequence start time
+    unsigned long _sequenceStart = 0;
+
+    // flag indicates whether first filtration (2A) phase is already executed or not. if not and current phase is filtration phase, only then change of program is allowed.
+    boolean _isFirst2APhaseExecuted = false;
+
+    // temporary save fields (program must continue, after end on manually triggered wash cycle)
+    int _programSequence = -1;
+    long _programSequenceDuration = -1;
+    Constants::Program _programToRunAfterWash;
 };
 
 #endif

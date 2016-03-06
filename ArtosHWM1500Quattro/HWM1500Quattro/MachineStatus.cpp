@@ -21,6 +21,15 @@ MachineStatus::MachineStatus()
 */
 boolean MachineStatus::checkOperationTime()
 {
+  // find time from last service
+  long timeFromService = machineStatus.operationTime - machineStatus.serviceTime;
+  if (timeFromService >= 400)
+  {
+    // service is required immediatelly, do not start with wash cycle
+    _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);
+    return true;
+  }
+  
   unsigned long current = now();
   // update quarter immediately after pump is turned on
   if (_quarterTime == -1 || (current - _quarterTime > (15 * 60)))
@@ -48,15 +57,7 @@ boolean MachineStatus::checkOperationTime()
     _userPressCombination.clear();
   }
   
-  // find time from last service
-  long timeFromService = machineStatus.operationTime - machineStatus.serviceTime;
-  if (timeFromService >= 400)
-  {
-    // service is required immediatelly, do not start with wash cycle
-    _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);
-    return true;
-  }
-  else if (timeFromService >= 390)
+  if (timeFromService >= 390)
   {
     // service will be needed soon, just blink with light
     _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);

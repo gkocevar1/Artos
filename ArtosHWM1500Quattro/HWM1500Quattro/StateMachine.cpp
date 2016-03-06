@@ -21,16 +21,16 @@ StateMachine::StateMachine()
 */
 void StateMachine::runProgram(Constants::Program program, boolean start)
 {
-  if (program == StateMachine::runningProgram)
+  if (!start && program == StateMachine::runningProgram)
   {
-    DMSG("Selected program is same as running program");
+    //DMSG("Selected program is same as running program");
     return;
   }
 
   // new program is selected manually
   if (!start)
   {
-    DMSG("Deactivating all valves");
+    //DMSG("Deactivating all valves");
     // deactivate all valves
     _vp.deactivateValves(500);
   }
@@ -139,6 +139,11 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 */
 void StateMachine::checkProgress()
 {
+  if (StateMachine::runningProgram == Constants::Program::ProgramNone)
+  {
+    return;
+  }
+  
   int duration = StateMachine::getSequenceDuration();
   if (duration > -1)
   {
@@ -178,7 +183,7 @@ boolean StateMachine::isWashAllowed()
 */
 void StateMachine::deactivateValves()
 {
-  DMSG("ValvePhase::deactivateValves");
+  //DMSG("ValvePhase::deactivateValves");
   // deactivate all valves
   _vp.deactivateValves(500);
 }
@@ -191,7 +196,7 @@ void StateMachine::deactivateValves()
 */
 void StateMachine::start(const StateMachine::Cycle &cycle)
 {
-  DMSG("StateMachine::start - Start new cycle");
+  //DMSG("StateMachine::start - Start new cycle");
 
   StateMachine::_sequenceNumber = 0;
   StateMachine::_sequenceStart = now();
@@ -224,12 +229,12 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
 */
 void StateMachine::moveToNextSequence()
 {
-  DMSG("StateMachine::moveToNextSequence");
+  //DMSG("StateMachine::moveToNextSequence");
 
   int cycleSequences = _currentCycle.sequences.size();
   if (cycleSequences > ++_sequenceNumber)
   {
-    DMSG("Proceed to next sequence");
+    //DMSG("Proceed to next sequence");
     // reset sequence timer
     _sequenceStart = now();
     // save current phase
@@ -250,7 +255,7 @@ void StateMachine::moveToNextSequence()
     }
 
     // set program step once everything is completed
-    DMSG("Proceed to next cycle");
+    //DMSG("Proceed to next cycle");
     if (_currentCycle.nextCycleId != -1)
     {
       // 4 specified cycles
@@ -258,7 +263,7 @@ void StateMachine::moveToNextSequence()
       {
         if (StateMachine::_cycles[i].cycleId == _currentCycle.nextCycleId)
         {
-          DMSG("New cycle is founded");
+          //DMSG("New cycle is founded");
           StateMachine::start(StateMachine::_cycles[i]);
           break;
         }
@@ -267,6 +272,7 @@ void StateMachine::moveToNextSequence()
     else
     {
       DMSG("---DESINFECTION / CLOSE");
+      StateMachine::runningProgram = Constants::Program::ProgramNone;
     }
   }
 

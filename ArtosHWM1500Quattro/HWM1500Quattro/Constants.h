@@ -89,7 +89,8 @@ class Constants
       Program3 = 2,
       ProgramDesinfection = 3,
       ProgramWash = 4,
-      ProgramClose = 5
+      ProgramClose = 5,
+      ProgramNone = 6
     };
 
     // Phase names (to display on screen while program is running)

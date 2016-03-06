@@ -10,12 +10,12 @@
    Once wash program is completed, 2A phase is continue for selected program.
 
    Desinfection program can be selected only during first 2A phase. If desinfection is selected, valves must be moved to proper positions. Duration of desinfaction
-   phase is unlimited. Nothing else can be selected during that phase. Only enter button must be active. 
+   phase is unlimited. Nothing else can be selected during that phase. Only enter button must be active.
    By pressing the enter button all valves will be moved to close position. Desinfection light must blink during close period.
 
    UV light is turned on when pump is running and valve 9 is open.
 
-   To reset service timer press within 5 second status, enter, status, enter button. 
+   To reset service timer press within 5 second status, enter, status, enter button.
    TODO: Possible update: press status button for 5 seconds and then within 5 second press status, enter, status, enter button.
 */
 
@@ -45,13 +45,16 @@ unsigned long _start = now();
 
 // program to select manually (only for internal state)
 int _programToSelect = -1;
-
 // last pressed button time (if status / switch between programs button is not pressed for 5 seconds then return display to previous text)
 long _lastPressed = -1;
-
 // if service is needed, program selection is not allowed except reset counter
 // when this flag is set to true, nothing is working
 boolean _serviceNeeded = false;
+// last blink check time (for desinfection light - when close program is in progress)
+long _lastBlinkCheckTime = -1;
+// flag indicates that close phase is finished
+boolean _closeFinished = false;
+
 
 /*
   Setup program parameters
@@ -132,17 +135,8 @@ void loop() {
       // only reset is allowed
       printToBothLines("Service needed!", "");
       _serviceNeeded = true;
-
-      // turn off pump, all program lights, force stop valves
-      _programRunning = false;
-      digitalWrite(Constants::Program1Light, LOW);
-      digitalWrite(Constants::Program2Light, LOW);
-      digitalWrite(Constants::Program3Light, LOW);
-      digitalWrite(Constants::DesinfectionLight, LOW);
-      digitalWrite(Constants::WashLight, LOW);
-      digitalWrite(Constants::PumpLight, LOW);
-      digitalWrite(Constants::UVLight, LOW);
-      _sm.deactivateValves();
+      // put machine in idle state
+      idle();
     }
   }
   else
@@ -152,7 +146,7 @@ void loop() {
       delay(100);
       // turn on power light
       digitalWrite(Constants::PowerOnLight, HIGH);
-      
+
       _programRunning = true;
       // when pump is turned on wash program must be executed first
       // continue with program 1 when wash is finished
@@ -160,7 +154,21 @@ void loop() {
     }
     else
     {
-      _sm.checkProgress();
+      if (_sm.runningProgram != Constants::Program::ProgramNone)
+      {
+        _sm.checkProgress();
+    
+        if (_sm.runningProgram == Constants::Program::ProgramClose)
+        {
+          // blink with desinfection light, when close program is running after desinfection program / phase
+          _lastBlinkCheckTime = _ms.blinkLigth(_lastBlinkCheckTime, Constants::DesinfectionLight);
+        }
+        else if (_sm.runningProgram == Constants::Program::ProgramNone)
+        {
+          idle();
+          // TODO: set text
+        }
+      }
     }
 
     // update display with text
@@ -174,11 +182,38 @@ void loop() {
 }
 
 // --------------------------
+// AUTOMATIC SET
+
+/**
+   put machine in idle state 
+   1. if service is needed and nothing can be run
+   2. after close program (desinfection)
+*/
+void idle()
+{
+  // turn off pump, all program lights, force stop valves
+  digitalWrite(Constants::Program1Light, LOW);
+  digitalWrite(Constants::Program2Light, LOW);
+  digitalWrite(Constants::Program3Light, LOW);
+  digitalWrite(Constants::DesinfectionLight, LOW);
+  digitalWrite(Constants::WashLight, LOW);
+  digitalWrite(Constants::PumpLight, LOW);
+  digitalWrite(Constants::UVLight, LOW);
+  _sm.deactivateValves();
+  _programRunning = false;
+}
+
+// --------------------------
 // USER SELECTION
 
 boolean _pressed = false;
 void checkUserSelection()
 {
+  if (_closeFinished)
+  {
+    return;
+  }
+  
   int pressedButton = getPressedButton();
 
   switch (pressedButton)
@@ -269,7 +304,7 @@ void checkUserSelection()
           DMSG("STATUS button is pressed");
           _pressed = true;
           displayStatus();
-          
+
           resetOperationTime(btnUP);
 
           _lastPressed = now();
@@ -372,7 +407,7 @@ void checkLastPressedButton()
   {
     return;
   }
-  
+
   _aFirstLine = "";
   _aSecondLine = "";
 
@@ -415,20 +450,19 @@ void displayStatus()
 */
 void resetOperationTime(int key)
 {
-  DMSG1("reset operation time - key: "); DMSG(key);
-
   if (_ms.resetOperationTime(key))
-  { 
+  {
     printToFirstLine("Counter is reset");
     printToSecondLine("");
-    _lastPressed = -1;
-    
+    _lastPressed = now();
+
     if (_serviceNeeded)
     {
       printToSecondLine("Starting wash");
       _serviceNeeded = false;
-      
-      delay(1000);
+      _lastPressed = -1;
+
+      delay(5000);
     }
   }
 }
@@ -442,6 +476,11 @@ void resetOperationTime(int key)
 */
 void updateDisplay()
 {
+  if (_closeFinished)
+  {
+    return;
+  }
+  
   char* program = Constants::ProgramNames[_sm.runningProgram];
   char *phase = Constants::PhaseNames[_sm.runningPhase];
 
