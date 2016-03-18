@@ -159,7 +159,7 @@ void StateMachine::checkProgress()
 }
 
 /**
-   is program change allowed (only in fist 2A phase)
+   is program change allowed (only in first 2A phase)
 */
 boolean StateMachine::isProgramChangeAllowed()
 {
@@ -449,10 +449,14 @@ void StateMachine::init()
 */
 void StateMachine::setFiltrationSequences(Constants::Program program)
 {
+  DMSG("test1");
   if (StateMachine::_cycles[1].sequences.size() > 0)
   {
+    DMSG("test2");
     StateMachine::_cycles[1].sequences.clear();
   }
+
+  DMSG("test3");
 
   CycleSequence sequence;
   unsigned int duration = Constants::Program1Duration;
@@ -465,6 +469,7 @@ void StateMachine::setFiltrationSequences(Constants::Program program)
     duration = Constants::Program3Duration;
   }
 
+  DMSG(duration / 300);
   for (int i = 0; i < (duration / 300); i++)
   {
     if (i % 2 == 0)
@@ -479,7 +484,7 @@ void StateMachine::setFiltrationSequences(Constants::Program program)
       sequence.duration = Constants::BackwashRuscoDuration;
       sequence.canInterrupt = false;
     }
-
+    DMSG1(i);DMSG("test4");
     StateMachine::_cycles[1].sequences.push_back(sequence);
   }
 }

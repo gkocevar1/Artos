@@ -139,8 +139,11 @@ void Vector<T, A>::push_back(const T& val){
 
 template<class T, class A> 
 void Vector<T, A>::clear(){
+	T* p = alloc.allocate(0);
+	
 	for(int i=0; i<sz; ++i) alloc.destroy(&elem[i]);
 	alloc.deallocate(elem, 0);
+	elem = p;
 	sz=0;
 	space=0;
 }

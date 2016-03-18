@@ -52,10 +52,11 @@ boolean MachineStatus::checkOperationTime()
   {
     _resetCounterTime = -1;
     // clear user press combination
-    MachineStatus::_userPressCombination[0] = 0;
-    MachineStatus::_userPressCombination[1] = 0;
-    MachineStatus::_userPressCombination[2] = 0;
-    MachineStatus::_userPressCombination[3] = 0;
+    _userPressCombination.clear();
+    //MachineStatus::_userPressCombination[0] = 0;
+    //MachineStatus::_userPressCombination[1] = 0;
+    //MachineStatus::_userPressCombination[2] = 0;
+    //MachineStatus::_userPressCombination[3] = 0;
   }
 
   if (timeFromService >= 390)
@@ -76,7 +77,7 @@ boolean MachineStatus::checkOperationTime()
 */
 
 int MachineStatus::_matchCombination[] = {1, 4, 1, 4};
-int MachineStatus::_userPressCombination[] = {0, 0, 0, 0};
+//int MachineStatus::_userPressCombination[] = {0, 0, 0, 0};
 
 boolean MachineStatus::resetOperationTime(int key)
 {
@@ -86,45 +87,32 @@ boolean MachineStatus::resetOperationTime(int key)
     _resetCounterTime = now();
   }
 
-  for (int i = 0; i < 4; i++)
+  _userPressCombination.push_back(key);
+  if (_userPressCombination.size() == 4)
   {
-    if (MachineStatus::_userPressCombination[i] = 0)
+    for(int i = 0; i < 4; i++)
     {
-      MachineStatus::_userPressCombination[i] = key;
-      if (i < 3)
+      // if one of input combination doesn't match, clear everything
+      if (MachineStatus::_matchCombination[i] != _userPressCombination[i])
       {
+        _userPressCombination.clear();
         return false;
       }
     }
+
+    DMSG("RESET Service Counter");
+    
+    machineStatus.serviceTime = machineStatus.operationTime;
+    machineStatus.quarters = 1;
+    
+    MachineStatus::updateOperationTime();
+    _resetCounterTime = -1;
+    _userPressCombination.clear();
+
+    return true;
   }
 
-  for (int i = 0; i < 4; i++)
-  {
-    // if one of input combination doesn't match, clear everything
-    if (MachineStatus::_matchCombination[i] != MachineStatus::_userPressCombination[i])
-    {
-      MachineStatus::_userPressCombination[0] = 0;
-      MachineStatus::_userPressCombination[1] = 0;
-      MachineStatus::_userPressCombination[2] = 0;
-      MachineStatus::_userPressCombination[3] = 0;
-      return false;
-    }
-  }
-
-  DMSG("RESET Service Counter");
-
-  machineStatus.serviceTime = machineStatus.operationTime;
-  machineStatus.quarters = 1;
-
-  MachineStatus::updateOperationTime();
-  MachineStatus::_userPressCombination[0] = 0;
-  MachineStatus::_userPressCombination[1] = 0;
-  MachineStatus::_userPressCombination[2] = 0;
-  MachineStatus::_userPressCombination[3] = 0;
-  
-  _resetCounterTime = -1;
-
-  return true;
+  return false;
 }
 
 /**
