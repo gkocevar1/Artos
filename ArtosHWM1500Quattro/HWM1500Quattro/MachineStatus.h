@@ -4,7 +4,6 @@
 #include "Arduino.h"
 #include <EEPROM.h>
 #include <Time.h>
-#include <Vector2.h>
 #include "HWM1500Quattro_debug.h"
 #include "Constants.h"
 
@@ -88,7 +87,7 @@ class MachineStatus
     // service timer (combination must be pressed with 5 seconds)
     long _resetCounterTime = -1;
     // user press combination
-    Vector<int> _userPressCombination;
+    static int _userPressCombination[];
 };
 
 #endif

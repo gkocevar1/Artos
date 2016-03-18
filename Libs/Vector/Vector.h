@@ -95,7 +95,7 @@ public:
 	
 	void reserve(int newalloc);
 	void push_back(const T& val);
-	
+	void clear();
 };
 
 template<class T, class A> 
@@ -120,6 +120,7 @@ Vector<T, A>& Vector<T, A>::operator=(const Vector& a) {
 
 template<class T, class A> void Vector<T, A>::reserve(int newalloc){
 	if(newalloc <= space) return;		                    //never decrease space
+	
 	T* p = alloc.allocate(newalloc);
 	for(int i=0; i<sz; ++i) alloc.construct(&p[i], elem[i]);	//copy
 	for(int i=0; i<sz; ++i) alloc.destroy(&elem[i]);
@@ -134,6 +135,14 @@ void Vector<T, A>::push_back(const T& val){
 	else if(sz==space) reserve(2*space);
 	alloc.construct(&elem[sz], val);
 	++sz;
+}
+
+template<class T, class A> 
+void Vector<T, A>::clear(){
+	for(int i=0; i<sz; ++i) alloc.destroy(&elem[i]);
+	alloc.deallocate(elem, 0);
+	sz=0;
+	space=0;
 }
 
 #endif

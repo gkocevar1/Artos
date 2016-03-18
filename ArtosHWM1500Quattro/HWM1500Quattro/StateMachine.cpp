@@ -1,7 +1,5 @@
 #include "StateMachine.h"
 
-// TODO set program after wash period
-
 /**
    Constructor
 */
@@ -67,9 +65,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         // set sequences for program 3
         digitalWrite(Constants::Program3Light, HIGH);
-        DMSG1("before: "); DMSG(StateMachine::_cycles[1].sequences.size());
         StateMachine::setFiltrationSequences(Constants::Program::Program3);
-        DMSG1("after: "); DMSG(StateMachine::_cycles[1].sequences.size());
         StateMachine::start(StateMachine::_cycles[1]);
 
         break;

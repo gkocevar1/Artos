@@ -5,7 +5,7 @@
 #include "Constants.h"
 #include "HWM1500Quattro_debug.h"
 #include "ValvePhase.h"
-#include <Vector2.h>
+#include <Vector.h>
 #include <Time.h>
 
 class StateMachine

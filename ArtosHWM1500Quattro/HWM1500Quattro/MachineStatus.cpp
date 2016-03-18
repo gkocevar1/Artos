@@ -29,7 +29,7 @@ boolean MachineStatus::checkOperationTime()
     _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);
     return true;
   }
-  
+
   unsigned long current = now();
   // update quarter immediately after pump is turned on
   if (_quarterTime == -1 || (current - _quarterTime > (15 * 60)))
@@ -44,19 +44,20 @@ boolean MachineStatus::checkOperationTime()
       machineStatus.quarters = 1;
     }
 
-    //DMSG1("Update operation time to: "); DMSG(machineStatus.operationTime);
-    //DMSG1("Update quarters to: "); DMSG(machineStatus.quarters);
-
     MachineStatus::updateOperationTime();
   }
-  
+
   // reset resetCounterTime if user didn't match reset combination, also clear all user presses
   if (_resetCounterTime != -1 && (now() - _resetCounterTime) > 5)
   {
     _resetCounterTime = -1;
-    _userPressCombination.clear();
+    // clear user press combination
+    MachineStatus::_userPressCombination[0] = 0;
+    MachineStatus::_userPressCombination[1] = 0;
+    MachineStatus::_userPressCombination[2] = 0;
+    MachineStatus::_userPressCombination[3] = 0;
   }
-  
+
   if (timeFromService >= 390)
   {
     // service will be needed soon, just blink with light
@@ -75,6 +76,8 @@ boolean MachineStatus::checkOperationTime()
 */
 
 int MachineStatus::_matchCombination[] = {1, 4, 1, 4};
+int MachineStatus::_userPressCombination[] = {0, 0, 0, 0};
+
 boolean MachineStatus::resetOperationTime(int key)
 {
   if (_resetCounterTime == -1)
@@ -83,39 +86,45 @@ boolean MachineStatus::resetOperationTime(int key)
     _resetCounterTime = now();
   }
 
-  _userPressCombination.push_back(key);
-  if (_userPressCombination.size() == 4)
+  for (int i = 0; i < 4; i++)
   {
-    for(int i = 0; i < 4; i++)
+    if (MachineStatus::_userPressCombination[i] = 0)
     {
-      // if one of input combination doesn't match, clear everything
-      if (MachineStatus::_matchCombination[i] != _userPressCombination[i])
+      MachineStatus::_userPressCombination[i] = key;
+      if (i < 3)
       {
-        _userPressCombination.clear();
         return false;
       }
     }
-
-    DMSG("RESET Service Counter");
-    //DMSG(machineStatus.operationTime);
-    //DMSG(machineStatus.serviceTime);
-    //DMSG(machineStatus.quarters);
-    
-    machineStatus.serviceTime = machineStatus.operationTime;
-    machineStatus.quarters = 1;
-
-    //DMSG(machineStatus.operationTime);
-    //DMSG(machineStatus.serviceTime);
-    //DMSG(machineStatus.quarters);
-    
-    MachineStatus::updateOperationTime();
-    _resetCounterTime = -1;
-    _userPressCombination.clear();
-
-    return true;
   }
 
-  return false;
+  for (int i = 0; i < 4; i++)
+  {
+    // if one of input combination doesn't match, clear everything
+    if (MachineStatus::_matchCombination[i] != MachineStatus::_userPressCombination[i])
+    {
+      MachineStatus::_userPressCombination[0] = 0;
+      MachineStatus::_userPressCombination[1] = 0;
+      MachineStatus::_userPressCombination[2] = 0;
+      MachineStatus::_userPressCombination[3] = 0;
+      return false;
+    }
+  }
+
+  DMSG("RESET Service Counter");
+
+  machineStatus.serviceTime = machineStatus.operationTime;
+  machineStatus.quarters = 1;
+
+  MachineStatus::updateOperationTime();
+  MachineStatus::_userPressCombination[0] = 0;
+  MachineStatus::_userPressCombination[1] = 0;
+  MachineStatus::_userPressCombination[2] = 0;
+  MachineStatus::_userPressCombination[3] = 0;
+  
+  _resetCounterTime = -1;
+
+  return true;
 }
 
 /**
@@ -149,15 +158,11 @@ void MachineStatus::init()
 {
   if (EEPROM.read(0) == CONFIG_VERSION[0] &&
       EEPROM.read(1) == CONFIG_VERSION[1] &&
-      EEPROM.read(2) == CONFIG_VERSION[2]) 
+      EEPROM.read(2) == CONFIG_VERSION[2])
   {
     for (unsigned int t = 0; t < sizeof(machineStatus); t++) {
       *((char*)&machineStatus + t) = EEPROM.read(t);
     }
-
-    // only for test
-    //machineStatus.operationTime = 399;
-    //machineStatus.quarters = 4;
   }
   else
   {
@@ -176,8 +181,6 @@ void MachineStatus::init()
 */
 void MachineStatus::updateOperationTime()
 {
-  return;
-  
   for (unsigned int t = 0; t < sizeof(machineStatus); t++) {
     EEPROM.write(t, *((char*)&machineStatus + t));
   }

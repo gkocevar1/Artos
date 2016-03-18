@@ -17,9 +17,10 @@
 
    To reset service timer press within 5 second status, enter, status, enter button.
    TODO: Possible update: press status button for 5 seconds and then within 5 second press status, enter, status, enter button.
+   TODO: Possible update: program selection during wash start-up period 
 */
 
-#include <Vector2.h>
+#include <Vector.h>
 #include <LiquidCrystal.h>
 #include "HWM1500Quattro_debug.h"
 #include "Constants.h"
@@ -111,19 +112,18 @@ void setup() {
 void loop() {
 
   // TODO: ce takoj po filtraciji prizges wash, pocakas do konca in pritisnes left(enter) se zgodi nekaj cudnega
-  // TODO: mogoce bi lahko omogocili, da lahko uporabnik med washom (samo prvic) izbere kateri program si zeli, vendar mora pocakati do konca wash periode
-
+  
   // TODO:DONE select between programs(1,2,3) - this can be selected only during first 2A phase (each time)
   // TODO:DONE confirm selected program
   // TODO:DONE select wash (special case: this can be selected always during phase 2A)
-  // TODO: select desinfection - this can be selected only during first 2A phase (each time) - confirmation needed to close valves and blink with desinfection light
+  // TODO:DONE select desinfection - this can be selected only during first 2A phase (each time) - confirmation needed to close valves and blink with desinfection light
   // TODO:DONE set wash ligth to on during wash cycle (also when machine is turned on)
   // TODO:DONE reset display to previous values after 5 seconds
   // TODO:DONE display status,
   // TODO:DONE update operation time
-  // TODO: reset service counter
+  // TODO:DONE reset service counter
   // TODO:DONE if service needed blink the light (or display on screen),
-  // TODO: stop machine if service time exceeded,
+  // TODO:DONE stop machine if service time exceeded,
 
   if (_ms.checkOperationTime())
   {
@@ -188,6 +188,7 @@ void loop() {
 */
 void idle()
 {
+  DMSG("idle");
   // turn off pump, all program lights, force stop valves
   digitalWrite(Constants::Program1Light, LOW);
   digitalWrite(Constants::Program2Light, LOW);
@@ -212,7 +213,7 @@ void checkUserSelection()
   }
   
   int pressedButton = getPressedButton();
-
+  
   switch (pressedButton)
   {
     case btnRIGHT:
@@ -272,12 +273,10 @@ void checkUserSelection()
 
           if (_sm.runningPhase == Constants::Phase::Desinfection)
           {
-            DMSG("test1");
             _sm.runProgram(Constants::Program::ProgramClose, false);
           }
           else if (_programToSelect != -1 && _sm.isProgramChangeAllowed())
           {
-            DMSG("test2");
             // clear display
             printToBothLines("", "");
 
@@ -357,7 +356,7 @@ int getPressedButton()
   {
     return btnSELECT;
   }
-
+  
   return btnNONE;  // when all others fail, return this...
 }
 
