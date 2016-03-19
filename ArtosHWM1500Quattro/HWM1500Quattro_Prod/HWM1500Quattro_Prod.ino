@@ -35,7 +35,8 @@
 #define btnSELECT 4 // confirmation button
 #define btnNONE   5
 
-LiquidCrystal _lcd(8, 9, 4, 5, 6, 7);
+//LiquidCrystal _lcd(8, 9, 4, 5, 6, 7);
+LiquidCrystal lcd(9, 8, 7, 6, 5, 4);
 StateMachine _sm;
 MachineStatus _ms;
 
@@ -313,34 +314,30 @@ int getPressedButton()
 {
   int analogInput = analogRead(0);      // read the value from the sensor
 
-  if (analogInput > 1000)
-  {
+  if (analogInput > 1000) 
+  {  
     return btnNONE; // We make this the 1st option for speed reasons since it will be the most likely result
   }
-
-  if (analogInput < 50)
+  
+  if (analogInput < 50)   //50
   {
-    return btnRIGHT;
+    return btnRIGHT;  
   }
-
-  if (analogInput < 200)
+  
+  if (analogInput < 250)  //250 // 200
   {
     return btnUP;
   }
-
-  if (analogInput < 300)
+  
+  if (analogInput < 450)  //450 // 300
   {
-    return btnDOWN;
-  }
-
-  if (analogInput < 500)
-  {
-    return btnLEFT;
-  }
-
-  if (analogInput < 700)
-  {
+    //return btnDOWN;
     return btnSELECT;
+  }
+  
+  if (analogInput < 720)  //720  // 500
+  {
+    return btnLEFT; 
   }
   
   return btnNONE;  // when all others fail, return this...
