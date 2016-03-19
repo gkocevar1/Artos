@@ -7,16 +7,16 @@ class ProgramConstants
 {
   public:
     // Valves constants
-    const static int _valve1P = 35; // 20
-    const static int _valve1M = 37; // 21
-    const static int _valve2P = 31; // 23
-    const static int _valve2M = 33; // 25
-    const static int _valve3P = 27; // 27
-    const static int _valve3M = 29; // 29
-    const static int _valve4P = 23; // 31
-    const static int _valve4M = 25; // 33
-    const static int _valve5P = 20; // 35
-    const static int _valve5M = 21; // 37
+    const static int _valve1P = 35;
+    const static int _valve1M = 37;
+    const static int _valve2P = 31;
+    const static int _valve2M = 33;
+    const static int _valve3P = 27;
+    const static int _valve3M = 29;
+    const static int _valve4P = 23;
+    const static int _valve4M = 25;
+    const static int _valve5P = 20;
+    const static int _valve5M = 21;
     const static int _valve6P = 39;
     const static int _valve6M = 41;
     const static int _valve7P = 43;

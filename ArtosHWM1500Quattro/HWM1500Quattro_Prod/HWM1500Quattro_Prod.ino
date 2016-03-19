@@ -36,7 +36,7 @@
 #define btnNONE   5
 
 //LiquidCrystal _lcd(8, 9, 4, 5, 6, 7);
-LiquidCrystal lcd(9, 8, 7, 6, 5, 4);
+LiquidCrystal _lcd(9, 8, 7, 6, 5, 4);
 StateMachine _sm;
 MachineStatus _ms;
 
@@ -469,26 +469,24 @@ void updateDisplay()
 /*
   print to both lines
 */
+boolean _lastTextPrinted = true;
 void printToBothLines(char *textLine1, char *textLine2)
 {
+  if (!_lastTextPrinted) {
+    printToFirstLine(textLine1);
+    printToSecondLine(textLine2);
+  }
+  
   if (textLine1 != _aFirstLine)
   {
-    //DMSG("Refresh line 1");
     _aFirstLine = textLine1;
-    //if (_lastPressed == -1)
-    //{
     printToFirstLine(textLine1);
-    //}
   }
 
   if (textLine2 != _aSecondLine)
   {
-    //DMSG("Refresh line 2");
     _aSecondLine = textLine2;
-    //if (_lastPressed == -1)
-    //{
     printToSecondLine(textLine2);
-    //}
   }
 }
 
@@ -527,6 +525,18 @@ void printToLCD(char* text, int column, int line, boolean clearLine)
 */
 void printToLCDLine(char* text, int column, int line)
 {
+  // 3v(what we want)/2.5 (reference) x1024/2=614
+  //we read VSS/2 on port 8, we want more than 2.5v to write on the lcd
+  if (analogRead(8) > 613) {
+    _lastTextPrinted = true;
+  }
+  else {
+    // do not print text to lcs, if voltage is to low
+    _lastTextPrinted = false;
+    delay(50);
+    return;
+  }
+  
   _lcd.setCursor(column, line);
   _lcd.print(text);
 }
