@@ -17,7 +17,7 @@
 
    To reset service timer press within 5 second status, enter, status, enter button.
    TODO: Possible update: press status button for 5 seconds and then within 5 second press status, enter, status, enter button.
-   TODO: Possible update: program selection during wash start-up period 
+   TODO: Possible update: program selection during wash start-up period
 */
 
 #include <Vector.h>
@@ -133,14 +133,14 @@ void loop() {
       _programRunning = true;
       // when pump is turned on wash program must be executed first
       // continue with program 1 when wash is finished
-      _sm.runProgram(Constants::Program::ProgramWash, true);
+      _sm.runProgram(Constants::Program::ProgramWash/*, true*/);
     }
     else
     {
       if (_sm.runningProgram != Constants::Program::ProgramNone)
       {
         _sm.checkProgress();
-    
+
         if (_sm.runningProgram == Constants::Program::ProgramClose)
         {
           // blink with desinfection light, when close program is running after desinfection program / phase
@@ -168,7 +168,7 @@ void loop() {
 // AUTOMATIC SET
 
 /**
-   put machine in idle state 
+   put machine in idle state
    1. if service is needed and nothing can be run
    2. after close program (desinfection)
 */
@@ -197,9 +197,9 @@ void checkUserSelection()
   {
     return;
   }
-  
+
   int pressedButton = getPressedButton();
-  
+
   switch (pressedButton)
   {
     case btnRIGHT:
@@ -217,7 +217,7 @@ void checkUserSelection()
           _pressed = true;
           if (_sm.isWashAllowed())
           {
-            _sm.runProgram(Constants::Program::ProgramWash, false);
+            _sm.runProgram(Constants::Program::ProgramWash/*, false*/);
           }
         }
 
@@ -259,7 +259,7 @@ void checkUserSelection()
 
           if (_sm.runningPhase == Constants::Phase::Desinfection)
           {
-            _sm.runProgram(Constants::Program::ProgramClose, false);
+            _sm.runProgram(Constants::Program::ProgramClose/*, false*/);
           }
           else if (_programToSelect != -1 && _sm.isProgramChangeAllowed())
           {
@@ -267,7 +267,7 @@ void checkUserSelection()
             printToBothLines("", "");
 
             Constants::Program program = static_cast<Constants::Program>(_programToSelect);
-            _sm.runProgram(program, false);
+            _sm.runProgram(program/*, false*/);
 
             _programToSelect = -1;
           }
@@ -342,7 +342,7 @@ int getPressedButton()
   {
     return btnSELECT;
   }
-  
+
   return btnNONE;  // when all others fail, return this...
 }
 
@@ -357,14 +357,21 @@ void switchToNextProgram()
 {
   if (_programToSelect == -1)
   {
-    // get current running program
-    _programToSelect = _sm.runningProgram;
+    if (!_sm.initialized)
+    {
+      _programToSelect = _sm.programToRunAfterWash;
+    }
+    else
+    {
+      // get current running program
+      _programToSelect = _sm.runningProgram;
+    }
   }
 
   // if current running program is equals to desinfection/wash/close, set programToSelect parameter to Program1 = 0
-  if (_programToSelect >= 3) //Constants::Program::ProgramDesinfection)
+  if (_programToSelect >= Constants::Program::ProgramDesinfection) // 3
   {
-    _programToSelect = 0; //Constants::Program::Program1;
+    _programToSelect = Constants::Program::Program1; // 0
   }
   else
   {
@@ -397,7 +404,7 @@ void checkLastPressedButton()
   _programToSelect = -1;
 
   // turn of all lights (program1, program2, program3, desinfection) except running one
-  setProgramLights(_sm.runningProgram);
+  setProgramLights(!_sm.initialized ? _sm.programToRunAfterWash : _sm.runningProgram);
 }
 
 void setProgramLights(Constants::Program program)
@@ -415,7 +422,7 @@ void displayStatus()
   char operationTime[6];
   strcpy(operationTime, String(_ms.machineStatus.operationTime).c_str());
   printToLCDLine(operationTime, 2, 0);
-  
+
   printToLCDLine("S:", 11, 0);
   char fromService[4];
   strcpy(fromService, String(_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime).c_str());
@@ -464,9 +471,9 @@ void updateDisplay()
   {
     return;
   }
-  
+
   char* program = Constants::ProgramNames[_sm.runningProgram];
-  char *phase = Constants::PhaseNames[_sm.runningPhase];
+  char* phase = Constants::PhaseNames[_sm.runningPhase];
 
   printToBothLines(program, phase);
 }
@@ -481,7 +488,7 @@ void printToBothLines(char *textLine1, char *textLine2)
     printToFirstLine(textLine1);
     printToSecondLine(textLine2);
   }
-  
+
   if (textLine1 != _aFirstLine)
   {
     _aFirstLine = textLine1;
@@ -542,7 +549,7 @@ void printToLCDLine(char* text, int column, int line)
     delay(50);
     return;
   }
-  
+
   _lcd.setCursor(column, line);
   _lcd.print(text);
 }

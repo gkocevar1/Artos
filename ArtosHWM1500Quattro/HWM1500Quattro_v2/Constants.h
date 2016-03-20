@@ -106,11 +106,11 @@ class Constants
 
     // ---------------
     // Phase durations
-    const static int FlushingSFRuscoDuration = 5; // 30
-    const static int FlushingUF1BDuration = 5; // 60
-    const static int FlushingGACDuration = 5; // 60
-    const static int FiltrationDuration = 10; // 300
-    const static int BackwashRuscoDuration = 300; // 300
+    const static int FlushingSFRuscoDuration = 7; // 30
+    const static int FlushingUF1BDuration = 7; // 60
+    const static int FlushingGACDuration = 7; // 60
+    const static int FiltrationDuration = 30; // 300
+    const static int BackwashRuscoDuration = 30; // 300
     const static int FlushingUF2BDuration = 60;
     const static int BackwashUF1Duration = 60;
     const static int BackwashUF2Duration = 60;

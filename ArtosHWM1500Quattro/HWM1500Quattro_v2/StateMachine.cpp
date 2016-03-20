@@ -17,15 +17,15 @@ StateMachine::StateMachine()
    @param1: program to run
    @param2: flag indicates if method is called when machine is turned on. In that case wash program is selected by default and program 1 must be selected as second cycle.
 */
-void StateMachine::runProgram(Constants::Program program, boolean start)
+void StateMachine::runProgram(Constants::Program program/*, boolean start*/)
 {
-  if (!start && program == StateMachine::runningProgram)
+  if (StateMachine::initialized && program == StateMachine::runningProgram)
   {
     return;
   }
 
-  // new program is selected manually
-  if (!start)
+  // new program is selected manually (after first 2A phase)
+  if (StateMachine::initialized)
   {
     //DMSG("Deactivating all valves");
     // deactivate all valves
@@ -41,7 +41,15 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
         // set sequences for program 1
         digitalWrite(Constants::Program1Light, HIGH);
         StateMachine::setFiltrationSequences(Constants::Program::Program1);
-        StateMachine::start(StateMachine::_cycles[1]);
+        if (!StateMachine::initialized)
+        {
+          StateMachine::programToRunAfterWash = Constants::Program::Program1;
+          StateMachine::_currentCycle.nextCycleId = 1;
+        }
+        else
+        {
+          StateMachine::start(StateMachine::_cycles[1]);
+        }
 
         break;
       }
@@ -52,7 +60,15 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
         // set sequences for program 2
         digitalWrite(Constants::Program2Light, HIGH);
         StateMachine::setFiltrationSequences(Constants::Program::Program2);
-        StateMachine::start(StateMachine::_cycles[1]);
+        if (!StateMachine::initialized)
+        {
+          StateMachine::programToRunAfterWash = Constants::Program::Program2;
+          StateMachine::_currentCycle.nextCycleId = 1;
+        }
+        else
+        {
+          StateMachine::start(StateMachine::_cycles[1]);
+        }
 
         break;
       }
@@ -63,18 +79,26 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
         // set sequences for program 3
         digitalWrite(Constants::Program3Light, HIGH);
         StateMachine::setFiltrationSequences(Constants::Program::Program3);
-        StateMachine::start(StateMachine::_cycles[1]);
+        if (!StateMachine::initialized)
+        {
+          StateMachine::programToRunAfterWash = Constants::Program::Program3;
+          StateMachine::_currentCycle.nextCycleId = 1;
+        }
+        else
+        {
+          StateMachine::start(StateMachine::_cycles[1]);
+        }
 
         break;
       }
     case Constants::Program::ProgramWash:
       {
         DMSG("StateMachine::runProgram - Wash");
-        if (start)
+        if (!StateMachine::initialized)
         {
           DMSG("Start with new");
           // program 1 is run automatically when pump is turned on
-          StateMachine::_programToRunAfterWash = Constants::Program::Program1;
+          StateMachine::programToRunAfterWash = Constants::Program::Program1;
           // set sequences for program 1
           StateMachine::setFiltrationSequences(Constants::Program::Program1);
           digitalWrite(Constants::Program1Light, HIGH);
@@ -88,11 +112,11 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
           // save running time
           StateMachine::_programSequenceDuration = now() - StateMachine::_sequenceStart;
           // save program
-          StateMachine::_programToRunAfterWash = StateMachine::runningProgram;
+          StateMachine::programToRunAfterWash = StateMachine::runningProgram;
 
           DMSG1("Sequence: "); DMSG(StateMachine::_programSequence);
           DMSG1("Sequence duration: "); DMSG(StateMachine::_programSequenceDuration);
-          DMSG1("Program after wash: "); DMSG(StateMachine::_programToRunAfterWash);
+          DMSG1("Program after wash: "); DMSG(StateMachine::programToRunAfterWash);
         }
 
         digitalWrite(Constants::WashLight, HIGH);
@@ -105,7 +129,17 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
         DMSG("StateMachine::runProgram - Desinfection");
 
         digitalWrite(Constants::DesinfectionLight, HIGH);
-        StateMachine::start(StateMachine::_cycles[3]);
+        if (!StateMachine::initialized)
+        {
+          DMSG1("Set new cycle id ");
+          StateMachine::_currentCycle.nextCycleId = 3;
+          DMSG(StateMachine::_currentCycle.nextCycleId);
+          StateMachine::programToRunAfterWash = Constants::Program::ProgramDesinfection;
+        }
+        else
+        {
+          StateMachine::start(StateMachine::_cycles[3]);
+        }
 
         break;
       }
@@ -122,7 +156,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
   }
 
   // set current running program
-  StateMachine::runningProgram = program;
+  StateMachine::runningProgram = StateMachine::initialized ? program : Constants::Program::ProgramWash;
 }
 
 /**
@@ -160,7 +194,7 @@ void StateMachine::checkProgress()
 */
 boolean StateMachine::isProgramChangeAllowed()
 {
-  return (!StateMachine::_isFirst2APhaseExecuted && StateMachine::runningPhase == Constants::Phase::Filtration);
+  return (!StateMachine::_isFirst2APhaseExecuted && StateMachine::runningPhase == Constants::Phase::Filtration) || !StateMachine::initialized;
 }
 
 /**
@@ -246,19 +280,25 @@ void StateMachine::moveToNextSequence()
       // turn off wash light after washing cycle
       digitalWrite(Constants::WashLight, LOW);
       // set running program after wash program
-      StateMachine::runningProgram = StateMachine::_programToRunAfterWash;
+      StateMachine::runningProgram = StateMachine::programToRunAfterWash;
+
+      if (!StateMachine::initialized) {
+        // state machine is initialized
+        StateMachine::initialized = true;
+      }
     }
 
     // set program step once everything is completed
     //DMSG("Proceed to next cycle");
     if (_currentCycle.nextCycleId != -1)
     {
+      DMSG1("Searching for next cycle id: ");DMSG(_currentCycle.nextCycleId);
       // 4 specified cycles
       for (int i = 0; i < 5; i++)
       {
         if (StateMachine::_cycles[i].cycleId == _currentCycle.nextCycleId)
         {
-          //DMSG("New cycle is founded");
+          DMSG1("New cycle is founded ");DMSG(StateMachine::_cycles[i].cycleId);
           StateMachine::start(StateMachine::_cycles[i]);
           break;
         }
