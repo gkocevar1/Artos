@@ -411,14 +411,15 @@ void setProgramLights(Constants::Program program)
 void displayStatus()
 {
   printToFirstLine("");
-  _lcd.setCursor(0, 0);
-  _lcd.print("O: ");
-  _lcd.setCursor(2, 0);
-  _lcd.print(_ms.machineStatus.operationTime);
-  _lcd.setCursor(11, 0);
-  _lcd.print("S:");
-  _lcd.setCursor(13, 0);
-  _lcd.print((_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime));
+  printToLCDLine("O: ", 0, 0);
+  char operationTime[6];
+  strcpy(operationTime, String(_ms.machineStatus.operationTime).c_str());
+  printToLCDLine(operationTime, 2, 0);
+  
+  printToLCDLine("S:", 11, 0);
+  char fromService[4];
+  strcpy(fromService, String(_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime).c_str());
+  printToLCDLine(fromService, 13, 0);
 
   printToSecondLine("");
   _lcd.setCursor(0, 1);
@@ -472,26 +473,24 @@ void updateDisplay()
 /*
   print to both lines
 */
+boolean _lastTextPrinted = true;
 void printToBothLines(char *textLine1, char *textLine2)
 {
+  if (!_lastTextPrinted) {
+    printToFirstLine(textLine1);
+    printToSecondLine(textLine2);
+  }
+  
   if (textLine1 != _aFirstLine)
   {
-    //DMSG("Refresh line 1");
     _aFirstLine = textLine1;
-    //if (_lastPressed == -1)
-    //{
     printToFirstLine(textLine1);
-    //}
   }
 
   if (textLine2 != _aSecondLine)
   {
-    //DMSG("Refresh line 2");
     _aSecondLine = textLine2;
-    //if (_lastPressed == -1)
-    //{
     printToSecondLine(textLine2);
-    //}
   }
 }
 
@@ -528,8 +527,21 @@ void printToLCD(char* text, int column, int line, boolean clearLine)
 /*
   print text to LCD line
 */
+
 void printToLCDLine(char* text, int column, int line)
 {
+  // 3v(what we want)/2.5 (reference) x1024/2=614
+  //we read VSS/2 on port 8, we want more than 2.5v to write on the lcd
+  if (analogRead(8) > 613) {
+    _lastTextPrinted = true;
+  }
+  else {
+    // do not print text to lcs, if voltage is to low
+    _lastTextPrinted = false;
+    delay(50);
+    return;
+  }
+  
   _lcd.setCursor(column, line);
   _lcd.print(text);
 }

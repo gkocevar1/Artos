@@ -21,7 +21,6 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 {
   if (!start && program == StateMachine::runningProgram)
   {
-    //DMSG("Selected program is same as running program");
     return;
   }
 
@@ -32,8 +31,6 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
     // deactivate all valves
     _vp.deactivateValves(500);
   }
-
-  // TODO: do not turn off program light if wash is selected manually
 
   switch (program)
   {
@@ -449,15 +446,10 @@ void StateMachine::init()
 */
 void StateMachine::setFiltrationSequences(Constants::Program program)
 {
-  DMSG("test1");
   if (StateMachine::_cycles[1].sequences.size() > 0)
   {
-    DMSG("test2");
     StateMachine::_cycles[1].sequences.clear();
   }
-
-  DMSG("test3");
-
   CycleSequence sequence;
   unsigned int duration = Constants::Program1Duration;
   if (program == Constants::Program::Program2)

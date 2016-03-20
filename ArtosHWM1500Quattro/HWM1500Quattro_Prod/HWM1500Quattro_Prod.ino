@@ -35,7 +35,6 @@
 #define btnSELECT 4 // confirmation button
 #define btnNONE   5
 
-//LiquidCrystal _lcd(8, 9, 4, 5, 6, 7);
 LiquidCrystal _lcd(9, 8, 7, 6, 5, 4);
 StateMachine _sm;
 MachineStatus _ms;
