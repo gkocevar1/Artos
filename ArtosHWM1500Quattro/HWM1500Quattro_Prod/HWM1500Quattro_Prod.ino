@@ -407,20 +407,15 @@ void setProgramLights(Constants::Program program)
 void displayStatus()
 {
   printToFirstLine("");
-  _lcd.setCursor(0, 0);
-  _lcd.print("O: ");
-  _lcd.setCursor(2, 0);
-  _lcd.print(_ms.machineStatus.operationTime);
-  _lcd.setCursor(11, 0);
-  _lcd.print("S:");
-  _lcd.setCursor(13, 0);
-  _lcd.print((_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime));
-
-  printToSecondLine("");
-  _lcd.setCursor(0, 1);
-  _lcd.print("Q: ");
-  _lcd.setCursor(2, 1);
-  _lcd.print(_ms.machineStatus.quarters);
+  printToLCDLine("O: ", 0, 0);
+  char operationTime[6];
+  strcpy(operationTime, String(_ms.machineStatus.operationTime).c_str());
+  printToLCDLine(operationTime, 2, 0);
+  
+  printToLCDLine("S:", 11, 0);
+  char fromService[4];
+  strcpy(fromService, String(_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime).c_str());
+  printToLCDLine(fromService, 13, 0);
 }
 
 /**
