@@ -21,7 +21,6 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 {
   if (!start && program == StateMachine::runningProgram)
   {
-    //DMSG("Selected program is same as running program");
     return;
   }
 
@@ -32,8 +31,6 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
     // deactivate all valves
     _vp.deactivateValves(500);
   }
-
-  // TODO: do not turn off program light if wash is selected manually
 
   switch (program)
   {
@@ -216,6 +213,8 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
   StateMachine::_currentCycle = cycle;
   // save current phase
   StateMachine::saveRunningPhase();
+  // check pump whether pump must be turned on or off
+  StateMachine::checkPump();
   // switch to new phase
   StateMachine::_vp.switchToPhase(StateMachine::runningPhase);
 }
@@ -449,15 +448,11 @@ void StateMachine::init()
 */
 void StateMachine::setFiltrationSequences(Constants::Program program)
 {
-  DMSG("test1");
   if (StateMachine::_cycles[1].sequences.size() > 0)
   {
-    DMSG("test2");
     StateMachine::_cycles[1].sequences.clear();
   }
-
-  DMSG("test3");
-
+  
   CycleSequence sequence;
   unsigned int duration = Constants::Program1Duration;
   if (program == Constants::Program::Program2)
@@ -469,7 +464,6 @@ void StateMachine::setFiltrationSequences(Constants::Program program)
     duration = Constants::Program3Duration;
   }
 
-  DMSG(duration / 300);
   for (int i = 0; i < (duration / 300); i++)
   {
     if (i % 2 == 0)
@@ -484,7 +478,7 @@ void StateMachine::setFiltrationSequences(Constants::Program program)
       sequence.duration = Constants::BackwashRuscoDuration;
       sequence.canInterrupt = false;
     }
-    DMSG1(i);DMSG("test4");
+    
     StateMachine::_cycles[1].sequences.push_back(sequence);
   }
 }

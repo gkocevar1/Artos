@@ -184,7 +184,7 @@ void idle()
   digitalWrite(Constants::PumpLight, LOW);
   digitalWrite(Constants::UVLight, LOW);
   _sm.deactivateValves();
-  _programRunning = false;
+  //_programRunning = false;
 }
 
 // --------------------------
@@ -330,7 +330,6 @@ int getPressedButton()
   
   if (analogInput < 450)  //450 // 300
   {
-    //return btnDOWN;
     return btnSELECT;
   }
   
@@ -434,6 +433,7 @@ void resetOperationTime(int key)
       printToSecondLine("Starting wash");
       _serviceNeeded = false;
       _lastPressed = -1;
+      _programRunning = false;
 
       delay(5000);
     }
