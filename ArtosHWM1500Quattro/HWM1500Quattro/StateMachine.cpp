@@ -19,6 +19,8 @@ StateMachine::StateMachine()
 */
 void StateMachine::runProgram(Constants::Program program, boolean start)
 {
+  DMSG1("runProgram: ");DMSG(Constants::ProgramNames[program]);
+  
   if (!start && program == StateMachine::runningProgram)
   {
     return;
@@ -142,12 +144,14 @@ void StateMachine::checkProgress()
   {
     if (now() > (duration + _sequenceStart))
     {
+      DMSG("moveToNextSequence");
       // move to next sequence
       StateMachine::moveToNextSequence();
     }
     else if ((now() + 2) > (duration + _sequenceStart))
     {
       // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
+      DMSG("deactivateValves");
       _vp.deactivateValves(0);
     }
   }
@@ -481,5 +485,6 @@ void StateMachine::setFiltrationSequences(Constants::Program program)
     StateMachine::_cycles[1].sequences.push_back(sequence);
   }
 }
+
 
 

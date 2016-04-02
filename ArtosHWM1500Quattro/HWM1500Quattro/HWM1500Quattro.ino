@@ -402,6 +402,7 @@ void checkLastPressedButton()
 
 void setProgramLights(Constants::Program program)
 {
+  DMSG1("setProgramLights: ");DMSG(program);
   digitalWrite(Constants::Program1Light, (program == Constants::Program::Program1) ? HIGH : LOW);
   digitalWrite(Constants::Program2Light, (program == Constants::Program::Program2) ? HIGH : LOW);
   digitalWrite(Constants::Program3Light, (program == Constants::Program::Program3) ? HIGH : LOW);

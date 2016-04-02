@@ -176,7 +176,6 @@ boolean StateMachine::isWashAllowed()
 */
 void StateMachine::deactivateValves()
 {
-  //DMSG("ValvePhase::deactivateValves");
   // deactivate all valves
   _vp.deactivateValves(500);
 }

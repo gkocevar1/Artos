@@ -10,45 +10,46 @@ class Constants
 {
   public:
     // valves constants
-    const static int Valve1P = 20;
-    const static int Valve1M = 21;
-    const static int Valve2P = 22;
-    const static int Valve2M = 23;
-    const static int Valve3P = 24;
-    const static int Valve3M = 25;
-    const static int Valve4P = 26;
-    const static int Valve4M = 27;
-    const static int Valve5P = 28;
-    const static int Valve5M = 29;
-    const static int Valve6P = 30;
-    const static int Valve6M = 31;
-    const static int Valve7P = 32;
-    const static int Valve7M = 33;
-    const static int Valve8P = 34;
-    const static int Valve8M = 35;
-    const static int Valve9P = 36;
-    const static int Valve9M = 37;
-    const static int Valve10P = 38;
-    const static int Valve10M = 39;
-    const static int Valve11P = 40;
-    const static int Valve11M = 41;
-    const static int Valve12P = 42;
-    const static int Valve12M = 43;
+    const static int Valve1P = 35;
+    const static int Valve1M = 37;
+    const static int Valve2P = 31;
+    const static int Valve2M = 33;
+    const static int Valve3P = 27;
+    const static int Valve3M = 29;
+    const static int Valve4P = 23;
+    const static int Valve4M = 25;
+    const static int Valve5P = 20;
+    const static int Valve5M = 21;
+    const static int Valve6P = 39;
+    const static int Valve6M = 41;
+    const static int Valve7P = 43;
+    const static int Valve7M = 45;
+    const static int Valve8P = 47;
+    const static int Valve8M = 49;
+    const static int Valve9P = 51;
+    const static int Valve9M = 53;
+    
+    const static int Valve10P = 13;
+    const static int Valve10M = 12;
+    const static int Valve11P = 11;
+    const static int Valve11M = 3;
+    const static int Valve12P = 2;
+    const static int Valve12M = 42;
     const static int Valve13P = 44;
-    const static int Valve13M = 45;
-    const static int Valve14P = 46;
-    const static int Valve14M = 47;
+    const static int Valve13M = 46;
+    const static int Valve14P = 48;
+    const static int Valve14M = 50;
 
     // light indicators constants
-    const static int PowerOnLight = 50;
-    const static int Program1Light = 15;
-    const static int Program2Light = 16;
-    const static int Program3Light = 17;
-    const static int DesinfectionLight = 18;
-    const static int WashLight = 19;
+    const static int PowerOnLight = 22;
+    const static int Program1Light = 24;
+    const static int Program2Light = 26;
+    const static int Program3Light = 28;
+    const static int DesinfectionLight = 30;
+    const static int WashLight = 32;
     // light indicators and triggers constants
-    const static int PumpLight = 48;
-    const static int UVLight = 49;
+    const static int PumpLight = 19;
+    const static int UVLight = 18; //10;
 
     // Washing in filtration phases
     enum Phase
@@ -109,14 +110,14 @@ class Constants
     const static int FlushingSFRuscoDuration = 5; // 30
     const static int FlushingUF1BDuration = 5; // 60
     const static int FlushingGACDuration = 5; // 60
-    const static int FiltrationDuration = 10; // 300
-    const static int BackwashRuscoDuration = 300; // 300
-    const static int FlushingUF2BDuration = 60;
-    const static int BackwashUF1Duration = 60;
-    const static int BackwashUF2Duration = 60;
-    const static int BackwashUF3Duration = 60;
-    const static int BackwashUF4Duration = 60;
-    const static int FlushingUF2GDuration = 60;
+    const static int FiltrationDuration = 5; // 300
+    const static int BackwashRuscoDuration = 5; // 300
+    const static int FlushingUF2BDuration = 10;
+    const static int BackwashUF1Duration = 10;
+    const static int BackwashUF2Duration = 10;
+    const static int BackwashUF3Duration = 10;
+    const static int BackwashUF4Duration = 10;
+    const static int FlushingUF2GDuration = 10;
     const static int DesinfectionDuration = -1;
     const static int CloseDuration = 10;
     /*
