@@ -42,7 +42,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         // set sequences for program 1
         digitalWrite(Constants::Program1Light, HIGH);
-        StateMachine::setFiltrationSequences(Constants::Program::Program1);
+        StateMachine::_cycles[1].sequences[0].duration = Constants::Program1Duration;
         StateMachine::start(StateMachine::_cycles[1]);
 
         break;
@@ -53,7 +53,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         // set sequences for program 2
         digitalWrite(Constants::Program2Light, HIGH);
-        StateMachine::setFiltrationSequences(Constants::Program::Program2);
+        StateMachine::_cycles[1].sequences[0].duration = Constants::Program2Duration;
         StateMachine::start(StateMachine::_cycles[1]);
 
         break;
@@ -64,7 +64,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         // set sequences for program 3
         digitalWrite(Constants::Program3Light, HIGH);
-        StateMachine::setFiltrationSequences(Constants::Program::Program3);
+        StateMachine::_cycles[1].sequences[0].duration = Constants::Program3Duration;
         StateMachine::start(StateMachine::_cycles[1]);
 
         break;
@@ -77,8 +77,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
           DMSG("Start with new");
           // program 1 is run automatically when pump is turned on
           StateMachine::_programToRunAfterWash = Constants::Program::Program1;
-          // set sequences for program 1
-          StateMachine::setFiltrationSequences(Constants::Program::Program1);
+          StateMachine::_cycles[1].sequences[0].duration = Constants::Program1Duration;
           digitalWrite(Constants::Program1Light, HIGH);
         }
         else
@@ -140,7 +139,7 @@ void StateMachine::checkProgress()
   }
 
   int duration = StateMachine::getSequenceDuration();
-  if (duration > -1)
+  if (duration > -1) // all phases except desinfection
   {
     if (now() > (duration + _sequenceStart))
     {
@@ -154,18 +153,27 @@ void StateMachine::checkProgress()
       DMSG("deactivateValves");
       _vp.deactivateValves(0);
     }
+
+    // execute backwash rusco phase after every 5 minutes of filtration phase
+    if (StateMachine::runningPhase == Constants::Phase::Filtration)
+    {
+      // extract in function
+
+      // _lastBackwashRuscoExecutionTime
+      // TODO
+
+      
+    }
   }
 
   StateMachine::checkPump();
 }
 
 /**
-   is program change allowed (only in first 2A phase)
+   is program change allowed (only in 2A phase)
 */
 boolean StateMachine::isProgramChangeAllowed()
 {
-  //return (!StateMachine::_isFirst2APhaseExecuted && StateMachine::runningPhase == Constants::Phase::Filtration);
-
   return StateMachine::runningPhase == Constants::Phase::Filtration;
 }
 
@@ -276,13 +284,6 @@ void StateMachine::moveToNextSequence()
       StateMachine::runningProgram = Constants::Program::ProgramNone;
     }
   }
-
-  // if first backwash rusco phase is started set _isFirst2APhaseExecuted to true. After that changing the program is not allowed any more
-  //if (!StateMachine::_isFirst2APhaseExecuted &&
-  //    StateMachine::runningPhase == Constants::Phase::BackwashRusco)
-  //{
-  //  StateMachine::_isFirst2APhaseExecuted = true;
-  //}
 }
 
 /**
@@ -371,10 +372,14 @@ void StateMachine::init()
   StateMachine::_cycles[0] = cycle1;
 
   // Cycle 2 - Filtration
-  // State: Filtration and BackwashRusco
+  // State: Filtration and intermediated phase BackwashRusco
   StateMachine::Cycle cycle2;
   cycle2.cycleId = 1;
   cycle2.nextCycleId = 2;
+  
+  sequence.phase = Constants::Phase::Filtration;
+  sequence.canInterrupt = true;
+  cycle2.sequences.push_back(sequence);
 
   // sequences to this cycle will be added when new program will be started
   StateMachine::_cycles[1] = cycle2;
@@ -446,46 +451,6 @@ void StateMachine::init()
   cycle5.sequences.push_back(sequence);
 
   StateMachine::_cycles[4] = cycle5;
-}
-
-/**
-   set filtration sequences - each program has different number of filtration sequences
-   filtratrion sequences is combined with Filtration phase and Backwashrusco phase
-*/
-void StateMachine::setFiltrationSequences(Constants::Program program)
-{
-  if (StateMachine::_cycles[1].sequences.size() > 0)
-  {
-    StateMachine::_cycles[1].sequences.clear();
-  }
-  CycleSequence sequence;
-  unsigned int duration = Constants::Program1Duration;
-  if (program == Constants::Program::Program2)
-  {
-    duration = Constants::Program2Duration;
-  }
-  else if (program == Constants::Program::Program3)
-  {
-    duration = Constants::Program3Duration;
-  }
-
-  for (int i = 0; i < (duration / 300); i++)
-  {
-    if (i % 2 == 0)
-    {
-      sequence.phase = Constants::Phase::Filtration;
-      sequence.duration = Constants::FiltrationDuration;
-      sequence.canInterrupt = true;
-    }
-    else
-    {
-      sequence.phase = Constants::Phase::BackwashRusco;
-      sequence.duration = Constants::BackwashRuscoDuration;
-      sequence.canInterrupt = false;
-    }
-
-    StateMachine::_cycles[1].sequences.push_back(sequence);
-  }
 }
 
 
