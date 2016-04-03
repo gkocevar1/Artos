@@ -164,7 +164,9 @@ void StateMachine::checkProgress()
 */
 boolean StateMachine::isProgramChangeAllowed()
 {
-  return (!StateMachine::_isFirst2APhaseExecuted && StateMachine::runningPhase == Constants::Phase::Filtration);
+  //return (!StateMachine::_isFirst2APhaseExecuted && StateMachine::runningPhase == Constants::Phase::Filtration);
+
+  return StateMachine::runningPhase == Constants::Phase::Filtration;
 }
 
 /**
@@ -276,11 +278,11 @@ void StateMachine::moveToNextSequence()
   }
 
   // if first backwash rusco phase is started set _isFirst2APhaseExecuted to true. After that changing the program is not allowed any more
-  if (!StateMachine::_isFirst2APhaseExecuted &&
-      StateMachine::runningPhase == Constants::Phase::BackwashRusco)
-  {
-    StateMachine::_isFirst2APhaseExecuted = true;
-  }
+  //if (!StateMachine::_isFirst2APhaseExecuted &&
+  //    StateMachine::runningPhase == Constants::Phase::BackwashRusco)
+  //{
+  //  StateMachine::_isFirst2APhaseExecuted = true;
+  //}
 }
 
 /**
