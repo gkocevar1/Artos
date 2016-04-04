@@ -31,18 +31,6 @@ class ValvePhase
     // pump is turned off on desinfection phase or 2AA phase
     boolean pumpRunning;
 
-    /**
-       Valve is combination of positive and negative state (or trigger). Two different states are controlled by two pins
-
-       At the time only one position is active (defined by active trigger). If active trigger is equals to -1 then valve is not controlled.
-    */
-    /*struct Valve
-      {
-      int positiveState;
-      int negativeState;
-      int activeState;
-      };*/
-
   private:
 
     /**
@@ -69,8 +57,6 @@ class ValvePhase
     String info(boolean);
 
     // Valve definitions
-    //Valve _valves[14];
-    // or
     // List of active valves - valves are closed two second before sequence ends
     int _activeValves[14];
 };

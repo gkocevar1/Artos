@@ -99,7 +99,27 @@ void ValvePhase::switchToPhase(Constants::Phase phase)
         );
         break;
       }
-    case Constants::Phase::BackwashRusco:
+    case Constants::Phase::BackwashRusco1:
+      {
+        ValvePhase::switchValves(
+          true, // 1
+          true, // 2
+          false, // 3
+          false, // 4
+          true, // 5
+          false, // 6
+          false, // 7
+          false, // 8
+          true, // 9
+          true, // 10
+          true, // 11
+          false, // 12
+          false, // 13
+          false  // 14
+        );
+        break;
+      }
+      case Constants::Phase::BackwashRusco2:
       {
         ValvePhase::switchValves(
           true, // 1
@@ -269,11 +289,11 @@ void ValvePhase::switchToPhase(Constants::Phase phase)
 */
 void ValvePhase::deactivateValves(unsigned int delayTime)
 {
-  //DMSG1("ValvePhase::deactivateValves with delay: ");DMSG(delayTime);
   for (int i = 0; i < 14; i++)
   {
     if (_activeValves[i] != -1)
     {
+      // deactivate valve
       digitalWrite(_activeValves[i], LOW);
       _activeValves[i] = -1;
     }

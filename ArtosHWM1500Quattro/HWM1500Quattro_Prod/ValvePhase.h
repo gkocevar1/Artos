@@ -52,7 +52,9 @@ class ValvePhase
     void activateValve(int, int);
 
     // Valve definitions
+    // List of active valves - valves are closed two second before sequence ends
     int _activeValves[14];
 };
 
 #endif
+

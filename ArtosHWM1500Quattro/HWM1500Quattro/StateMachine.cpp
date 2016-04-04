@@ -115,7 +115,6 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
       {
         DMSG("StateMachine::runProgram - Close");
 
-        // TODO change to blink desinfection light
         digitalWrite(Constants::DesinfectionLight, HIGH);
         StateMachine::start(StateMachine::_cycles[4]);
 

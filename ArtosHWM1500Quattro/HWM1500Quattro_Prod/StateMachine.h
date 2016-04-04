@@ -89,13 +89,9 @@ class StateMachine
     void init();
 
     /**
-       set filtration sequences - each program has different number of filtration sequences
-       filtratrion sequences is combined with Filtration phase and Backwashrusco phase
-    */
-    void setFiltrationSequences(Constants::Program);
-
-    /**
       start cycle
+
+      @param1: cycle to start
     */
     void start(const Cycle &);
 
@@ -121,6 +117,14 @@ class StateMachine
     */
     void checkPump();
 
+    /**
+       set filtration sequences - each program has different number of filtration sequences
+       filtratrion sequences is combined with Filtration phase and Backwashrusco phase
+
+       @param: add filtration sequences for program
+    */
+    void setFiltrationSequences(Constants::Program);
+
     // State machine cycles (predefined cycles)
     // 0: WASH (Init)
     // 1: FILTRATION (Program1 or Program2 or Program3 with Backwash Rusco)
@@ -137,9 +141,6 @@ class StateMachine
     // Sequence start time
     unsigned long _sequenceStart = 0;
 
-    // flag indicates whether first filtration (2A) phase is already executed or not. if not and current phase is filtration phase, only then change of program is allowed.
-    boolean _isFirst2APhaseExecuted = false;
-
     // temporary save fields (program must continue, after end on manually triggered wash cycle)
     int _programSequence = -1;
     long _programSequenceDuration = -1;
@@ -147,3 +148,4 @@ class StateMachine
 };
 
 #endif
+

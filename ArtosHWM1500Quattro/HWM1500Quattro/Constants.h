@@ -115,8 +115,8 @@ class Constants
     const static int FiltrationDuration = 300; // 300
     
     // Backwash rusco duration is 22 seconds - phase is splitted into two subphases
-    const static int BackwashRusco1Duration = 7; // 7
-    const static int BackwashRusco2Duration = 15; // 15
+    const static int BackwashRusco1Duration = 7; 
+    const static int BackwashRusco2Duration = 15; 
     
     const static int FlushingUF2BDuration = 60;
     const static int BackwashUF1Duration = 60;

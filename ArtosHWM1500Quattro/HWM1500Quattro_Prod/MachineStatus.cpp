@@ -23,7 +23,7 @@ boolean MachineStatus::checkOperationTime()
 {
   // find time from last service
   long timeFromService = machineStatus.operationTime - machineStatus.serviceTime;
-  if (timeFromService >= 400)
+  if (timeFromService >= 300)
   {
     // service is required immediatelly, do not start with wash cycle
     _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);
@@ -59,7 +59,7 @@ boolean MachineStatus::checkOperationTime()
     //MachineStatus::_userPressCombination[3] = 0;
   }
 
-  if (timeFromService >= 390)
+  if (timeFromService >= 290)
   {
     // service will be needed soon, just blink with light
     _lastBlinkCheckTime = MachineStatus::blinkLigth(_lastBlinkCheckTime, Constants::PowerOnLight);

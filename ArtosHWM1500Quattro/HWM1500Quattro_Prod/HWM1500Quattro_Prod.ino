@@ -4,7 +4,7 @@
    When machine is turned on wash program is started immediately (sequence 1A to 1C). After 3 seconds pump is turned on.
 
    Program 1 is started automatically when wash program is completed.
-   During the first 2A phase, user can select different programs (program 1, program 2, program 3 or desinfection). Otherwise selection is disabled.
+   During the filtration phase (2A), user can select different programs (program 1, program 2, program 3 or desinfection).
 
    Wash program is active during all 2A phases. When user press on wash button, phases 1A to 1C are executed.
    Once wash program is completed, 2A phase is continue for selected program.
