@@ -492,6 +492,11 @@ void StateMachine::setFiltrationSequences(Constants::Program program)
     sum += Constants::FiltrationDuration;
     StateMachine::_cycles[1].sequences.push_back(sequence);
 
+    if (sum >= duration)
+    {
+      break;
+    }
+
     sequence.phase = Constants::Phase::BackwashRusco1;
     sequence.duration = Constants::BackwashRusco1Duration;
     sequence.canInterrupt = false;
