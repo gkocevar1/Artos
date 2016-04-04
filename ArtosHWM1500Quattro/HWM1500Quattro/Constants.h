@@ -109,21 +109,21 @@ class Constants
 
     // ---------------
     // Phase durations
-    const static int FlushingSFRuscoDuration = 5; // 30
-    const static int FlushingUF1BDuration = 5; // 60
-    const static int FlushingGACDuration = 5; // 60
-    const static int FiltrationDuration = 20; // 300
+    const static int FlushingSFRuscoDuration = 30; // 30
+    const static int FlushingUF1BDuration = 60; // 60
+    const static int FlushingGACDuration = 60; // 60
+    const static int FiltrationDuration = 300; // 300
     
     // Backwash rusco duration is 22 seconds - phase is splitted into two subphases
     const static int BackwashRusco1Duration = 7; // 7
     const static int BackwashRusco2Duration = 15; // 15
     
-    const static int FlushingUF2BDuration = 10;
-    const static int BackwashUF1Duration = 10;
-    const static int BackwashUF2Duration = 10;
-    const static int BackwashUF3Duration = 10;
-    const static int BackwashUF4Duration = 10;
-    const static int FlushingUF2GDuration = 10;
+    const static int FlushingUF2BDuration = 60;
+    const static int BackwashUF1Duration = 60;
+    const static int BackwashUF2Duration = 60;
+    const static int BackwashUF3Duration = 60;
+    const static int BackwashUF4Duration = 60;
+    const static int FlushingUF2GDuration = 60;
     const static int DesinfectionDuration = -1;
     const static int CloseDuration = 10;
     /*
@@ -131,7 +131,8 @@ class Constants
       const static int FlushingUF1BDuration = 10;
       const static int FlushingGACDuration = 10;
       const static int FiltrationDuration = 30;
-      const static int BackwashRuscoDuration = 30;
+      const static int BackwashRusco1Duration = 7;
+      const static int BackwashRusco2Duration = 15;
       const static int FlushingUF2BDuration = 30;
       const static int BackwashUF1Duration = 30;
       const static int BackwashUF2Duration = 30;

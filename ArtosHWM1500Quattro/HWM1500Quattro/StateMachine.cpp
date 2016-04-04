@@ -193,7 +193,7 @@ void StateMachine::deactivateValves()
 */
 void StateMachine::start(const StateMachine::Cycle &cycle)
 {
-  //DMSG("StateMachine::start - Start new cycle");
+  DMSG("StateMachine::start - Start new cycle");
 
   StateMachine::_sequenceNumber = 0;
   StateMachine::_sequenceStart = now();
@@ -228,7 +228,7 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
 */
 void StateMachine::moveToNextSequence()
 {
-  //DMSG("StateMachine::moveToNextSequence");
+  DMSG("StateMachine::moveToNextSequence");
 
   int cycleSequences = _currentCycle.sequences.size();
   if (cycleSequences > ++_sequenceNumber)
@@ -274,6 +274,12 @@ void StateMachine::moveToNextSequence()
       StateMachine::runningProgram = Constants::Program::ProgramNone;
     }
   }
+
+  // turn on / off wash light
+  digitalWrite(Constants::WashLight, 
+    (StateMachine::runningPhase != Constants::Phase::Filtration &&
+    StateMachine::runningPhase != Constants::Phase::Desinfection &&
+    StateMachine::runningPhase != Constants::Phase::Close) ? HIGH : LOW);
 }
 
 /**
@@ -285,10 +291,12 @@ void StateMachine::checkPump()
 {
   // turn pump off during 2AA phase (backwash rusco) or desinfection phase and close phase
   // during 2AA sub phase (backwash rusco 2): turn off pump after 5 seconds and turn on pump after 10 seconds 
-  boolean turnOffBackwashRusco2 = StateMachine::runningPhase == Constants::Phase::BackwashRusco2 &&
-    (now() > (5 + _sequenceStart)) && (now() < (11 + _sequenceStart));
+  boolean turnOffPumpBackwashRusco2 = 
+    StateMachine::runningPhase == Constants::Phase::BackwashRusco2 &&
+    (now() > (5 + _sequenceStart)) && 
+    (now() < (11 + _sequenceStart));
   
-  if (turnOffBackwashRusco2 ||
+  if (turnOffPumpBackwashRusco2 ||
       StateMachine::runningPhase == Constants::Phase::Desinfection ||
       StateMachine::runningPhase == Constants::Phase::Close)
   {
@@ -298,6 +306,7 @@ void StateMachine::checkPump()
       digitalWrite(Constants::PumpLight, LOW);
       DMSG("UV light is turned OFF");
       digitalWrite(Constants::UVLight, LOW);
+      
       _vp.pumpRunning = false;
     }
 
@@ -317,10 +326,10 @@ void StateMachine::checkPump()
     digitalWrite(Constants::PumpLight, HIGH);
     _vp.pumpRunning = true;
 
-    if (StateMachine::runningPhase == Constants::Phase::BackwashRusco2 && 
-      (now() > (10 + _sequenceStart))) 
+    // turn on UV light after 10 seconds of backwash rusco 2 sub-phase
+    if (StateMachine::runningPhase == Constants::Phase::BackwashRusco2 && (now() > (10 + _sequenceStart))) 
     {
-      DMSG("UV light is turned OFF");
+      DMSG("UV light is turned ON");
       digitalWrite(Constants::UVLight, HIGH);
     }
   }
@@ -343,7 +352,7 @@ void StateMachine::saveRunningPhase()
 }
 
 /**
-  init cycles (by default Program2 is selected)
+  init cycles (by default Program1 is selected)
 */
 void StateMachine::init()
 {
