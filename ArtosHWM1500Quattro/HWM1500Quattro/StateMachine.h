@@ -90,6 +90,8 @@ class StateMachine
 
     /**
       start cycle
+
+      @param1: cycle to start
     */
     void start(const Cycle &);
 
@@ -114,6 +116,14 @@ class StateMachine
        pump is turned off on desinfection phase or 2AA phase
     */
     void checkPump();
+
+    /**
+       set filtration sequences - each program has different number of filtration sequences
+       filtratrion sequences is combined with Filtration phase and Backwashrusco phase
+
+       @param: add filtration sequences for program
+    */
+    void setFiltrationSequences(Constants::Program);
 
     // State machine cycles (predefined cycles)
     // 0: WASH (Init)

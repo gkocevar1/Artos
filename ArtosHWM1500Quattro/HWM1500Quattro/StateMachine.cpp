@@ -42,7 +42,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         // set sequences for program 1
         digitalWrite(Constants::Program1Light, HIGH);
-        StateMachine::_cycles[1].sequences[0].duration = Constants::Program1Duration;
+        StateMachine::setFiltrationSequences(Constants::Program::Program1);
         StateMachine::start(StateMachine::_cycles[1]);
 
         break;
@@ -53,7 +53,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         // set sequences for program 2
         digitalWrite(Constants::Program2Light, HIGH);
-        StateMachine::_cycles[1].sequences[0].duration = Constants::Program2Duration;
+        StateMachine::setFiltrationSequences(Constants::Program::Program2);
         StateMachine::start(StateMachine::_cycles[1]);
 
         break;
@@ -64,7 +64,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
 
         // set sequences for program 3
         digitalWrite(Constants::Program3Light, HIGH);
-        StateMachine::_cycles[1].sequences[0].duration = Constants::Program3Duration;
+        StateMachine::setFiltrationSequences(Constants::Program::Program3);
         StateMachine::start(StateMachine::_cycles[1]);
 
         break;
@@ -77,7 +77,8 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
           DMSG("Start with new");
           // program 1 is run automatically when pump is turned on
           StateMachine::_programToRunAfterWash = Constants::Program::Program1;
-          StateMachine::_cycles[1].sequences[0].duration = Constants::Program1Duration;
+          // set sequences for program 1
+          StateMachine::setFiltrationSequences(Constants::Program::Program1);
           digitalWrite(Constants::Program1Light, HIGH);
         }
         else
@@ -139,7 +140,7 @@ void StateMachine::checkProgress()
   }
 
   int duration = StateMachine::getSequenceDuration();
-  if (duration > -1) // all phases except desinfection
+  if (duration > -1)
   {
     if (now() > (duration + _sequenceStart))
     {
@@ -150,27 +151,16 @@ void StateMachine::checkProgress()
     else if ((now() + 2) > (duration + _sequenceStart))
     {
       // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
-      DMSG("deactivateValves");
+      //DMSG("deactivateValves");
       _vp.deactivateValves(0);
-    }
-
-    // execute backwash rusco phase after every 5 minutes of filtration phase
-    if (StateMachine::runningPhase == Constants::Phase::Filtration)
-    {
-      // extract in function
-
-      // _lastBackwashRuscoExecutionTime
-      // TODO
-
-      
     }
   }
 
-  StateMachine::checkPump();
+  StateMachine::checkPump(); 
 }
 
 /**
-   is program change allowed (only in 2A phase)
+   is program change allowed (only in first 2A phase)
 */
 boolean StateMachine::isProgramChangeAllowed()
 {
@@ -294,7 +284,11 @@ void StateMachine::moveToNextSequence()
 void StateMachine::checkPump()
 {
   // turn pump off during 2AA phase (backwash rusco) or desinfection phase and close phase
-  if (StateMachine::runningPhase == Constants::Phase::BackwashRusco ||
+  // during 2AA sub phase (backwash rusco 2): turn off pump after 5 seconds and turn on pump after 10 seconds 
+  boolean turnOffBackwashRusco2 = StateMachine::runningPhase == Constants::Phase::BackwashRusco2 &&
+    (now() > (5 + _sequenceStart)) && (now() < (11 + _sequenceStart));
+  
+  if (turnOffBackwashRusco2 ||
       StateMachine::runningPhase == Constants::Phase::Desinfection ||
       StateMachine::runningPhase == Constants::Phase::Close)
   {
@@ -302,6 +296,8 @@ void StateMachine::checkPump()
     {
       DMSG("Pump is turned OFF");
       digitalWrite(Constants::PumpLight, LOW);
+      DMSG("UV light is turned OFF");
+      digitalWrite(Constants::UVLight, LOW);
       _vp.pumpRunning = false;
     }
 
@@ -320,6 +316,13 @@ void StateMachine::checkPump()
     DMSG("Pump is turned ON");
     digitalWrite(Constants::PumpLight, HIGH);
     _vp.pumpRunning = true;
+
+    if (StateMachine::runningPhase == Constants::Phase::BackwashRusco2 && 
+      (now() > (10 + _sequenceStart))) 
+    {
+      DMSG("UV light is turned OFF");
+      digitalWrite(Constants::UVLight, HIGH);
+    }
   }
 }
 
@@ -371,19 +374,16 @@ void StateMachine::init()
 
   StateMachine::_cycles[0] = cycle1;
 
-  // Cycle 2 - Filtration
-  // State: Filtration and intermediated phase BackwashRusco
+  // Cycle 2 - FILTRATION
+  // State: Filtration and BackwashRusco
   StateMachine::Cycle cycle2;
   cycle2.cycleId = 1;
   cycle2.nextCycleId = 2;
-  
-  sequence.phase = Constants::Phase::Filtration;
-  sequence.canInterrupt = true;
-  cycle2.sequences.push_back(sequence);
 
   // sequences to this cycle will be added when new program will be started
   StateMachine::_cycles[1] = cycle2;
 
+  // Cycle 3 - WASH after FILTRATION
   StateMachine::Cycle cycle3;
   cycle3.cycleId = 2;
   cycle3.nextCycleId = 1;
@@ -453,5 +453,51 @@ void StateMachine::init()
   StateMachine::_cycles[4] = cycle5;
 }
 
+/**
+   set filtration sequences - each program has different number of filtration sequences
+   filtratrion sequences is combined with Filtration phase and Backwashrusco phase
+*/
+void StateMachine::setFiltrationSequences(Constants::Program program)
+{
+  if (StateMachine::_cycles[1].sequences.size() > 0)
+  {
+    StateMachine::_cycles[1].sequences.clear();
+  }
+  
+  CycleSequence sequence;
+  unsigned int duration = Constants::Program1Duration;
+  if (program == Constants::Program::Program2)
+  {
+    duration = Constants::Program2Duration;
+  }
+  else if (program == Constants::Program::Program3)
+  {
+    duration = Constants::Program3Duration;
+  }
 
+  int sum = 0;
+  while (sum < duration)
+  {
+    sequence.phase = Constants::Phase::Filtration;
+    sequence.duration = Constants::FiltrationDuration;
+    sequence.canInterrupt = true;
+    sum += Constants::FiltrationDuration;
+    StateMachine::_cycles[1].sequences.push_back(sequence);
+
+    sequence.phase = Constants::Phase::BackwashRusco1;
+    sequence.duration = Constants::BackwashRusco1Duration;
+    sequence.canInterrupt = false;
+    sum += Constants::BackwashRusco1Duration;
+    StateMachine::_cycles[1].sequences.push_back(sequence);
+
+    sequence.phase = Constants::Phase::BackwashRusco2;
+    sequence.duration = Constants::BackwashRusco2Duration;
+    sequence.canInterrupt = false;
+    sum += Constants::BackwashRusco2Duration;
+    StateMachine::_cycles[1].sequences.push_back(sequence);
+  }
+
+  DMSG1("Size: ");
+  DMSG(StateMachine::_cycles[1].sequences.size());
+}
 

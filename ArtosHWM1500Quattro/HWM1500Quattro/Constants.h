@@ -52,6 +52,7 @@ class Constants
     const static int UVLight = 18; //10;
 
     // Washing in filtration phases
+    // Backwash rusco phase is splitted to two (sub)phase 
     enum Phase
     {
       // 1A
@@ -63,23 +64,24 @@ class Constants
       // 2A
       Filtration = 3,
       // 2AA
-      BackwashRusco = 4,
+      BackwashRusco1 = 4,
+      BackwashRusco2 = 5,
       // 2B
-      FlushingUF2B = 5,
+      FlushingUF2B = 6,
       // 2C
-      BackwashUF1 = 6,
+      BackwashUF1 = 7,
       // 2D
-      BackwashUF2 = 7,
+      BackwashUF2 = 8,
       // 2E
-      BackwashUF3 = 8,
+      BackwashUF3 = 9,
       // 2F
-      BackwashUF4 = 9,
+      BackwashUF4 = 10,
       // 2G
-      FlushingUF2G = 10,
+      FlushingUF2G = 11,
       // Desinfection
-      Desinfection = 11,
+      Desinfection = 12,
       // Close
-      Close = 12
+      Close = 13
     };
 
     // Programs
@@ -110,9 +112,11 @@ class Constants
     const static int FlushingSFRuscoDuration = 5; // 30
     const static int FlushingUF1BDuration = 5; // 60
     const static int FlushingGACDuration = 5; // 60
+    const static int FiltrationDuration = 20; // 300
     
-    const static int FiltrationDuration = 300; // after 300 seconds start backwash rusco
-    const static int BackwashRuscoDuration = 22; // 
+    // Backwash rusco duration is 22 seconds - phase is splitted into two subphases
+    const static int BackwashRusco1Duration = 7; // 7
+    const static int BackwashRusco2Duration = 15; // 15
     
     const static int FlushingUF2BDuration = 10;
     const static int BackwashUF1Duration = 10;

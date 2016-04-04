@@ -16,7 +16,7 @@ ValvePhase::ValvePhase()
 */
 void ValvePhase::switchToPhase(Constants::Phase phase)
 {
-  //DMSG1("New Phase: "); DMSG(Constants::PhaseNames[phase]);
+  DMSG1("New Phase: "); DMSG(Constants::PhaseNames[phase]);
 
   switch (phase)
   {
@@ -101,7 +101,27 @@ void ValvePhase::switchToPhase(Constants::Phase phase)
         );
         break;
       }
-    case Constants::Phase::BackwashRusco:
+    case Constants::Phase::BackwashRusco1:
+      {
+        ValvePhase::switchValves(
+          true, // 1
+          true, // 2
+          false, // 3
+          false, // 4
+          true, // 5
+          false, // 6
+          false, // 7
+          false, // 8
+          true, // 9
+          true, // 10
+          true, // 11
+          false, // 12
+          false, // 13
+          false  // 14
+        );
+        break;
+      }
+      case Constants::Phase::BackwashRusco2:
       {
         ValvePhase::switchValves(
           true, // 1
@@ -294,7 +314,7 @@ void ValvePhase::deactivateValves(unsigned int delayTime)
 */
 void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, boolean v5, boolean v6, boolean v7, boolean v8, boolean v9, boolean v10, boolean v11, boolean v12, boolean v13, boolean v14)
 {
-  /*String info = String(
+  String info = String(
     "v1:" + ValvePhase::info(v1) + ", " +
     "v2:" + ValvePhase::info(v2) + ", " +
     "v3:" + ValvePhase::info(v3) + ", " +
@@ -309,7 +329,7 @@ void ValvePhase::switchValves(boolean v1, boolean v2, boolean v3, boolean v4, bo
     "v12:" + ValvePhase::info(v12) + ", " +
     "v13:" + ValvePhase::info(v13) + ", " +
     "v14:" + ValvePhase::info(v14));
-  DMSG(info);*/
+  DMSG(info);
  
   ValvePhase::activateValve((v1 ? Constants::Valve1P : Constants::Valve1M), 0);
   ValvePhase::activateValve((v2 ? Constants::Valve2P : Constants::Valve2M), 1);
