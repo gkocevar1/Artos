@@ -76,7 +76,7 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
         {
           DMSG("Start with new");
           // program 1 is run automatically when pump is turned on
-          StateMachine::_programToRunAfterWash = Constants::Program::Program1;
+          StateMachine::programToRunAfterWash = Constants::Program::Program1;
           // set sequences for program 1
           StateMachine::setFiltrationSequences(Constants::Program::Program1);
           digitalWrite(Constants::Program1Light, HIGH);
@@ -90,11 +90,11 @@ void StateMachine::runProgram(Constants::Program program, boolean start)
           // save running time
           StateMachine::_programSequenceDuration = now() - StateMachine::_sequenceStart;
           // save program
-          StateMachine::_programToRunAfterWash = StateMachine::runningProgram;
+          StateMachine::programToRunAfterWash = StateMachine::runningProgram;
 
           DMSG1("Sequence: "); DMSG(StateMachine::_programSequence);
           DMSG1("Sequence duration: "); DMSG(StateMachine::_programSequenceDuration);
-          DMSG1("Program after wash: "); DMSG(StateMachine::_programToRunAfterWash);
+          DMSG1("Program after wash: "); DMSG(StateMachine::programToRunAfterWash);
         }
 
         digitalWrite(Constants::WashLight, HIGH);
@@ -249,7 +249,7 @@ void StateMachine::moveToNextSequence()
       // turn off wash light after washing cycle
       digitalWrite(Constants::WashLight, LOW);
       // set running program after wash program
-      StateMachine::runningProgram = StateMachine::_programToRunAfterWash;
+      StateMachine::runningProgram = StateMachine::programToRunAfterWash;
     }
 
     // set program step once everything is completed
@@ -486,16 +486,21 @@ void StateMachine::setFiltrationSequences(Constants::Program program)
   int sum = 0;
   while (sum < duration)
   {
+    if (sum + Constants::FiltrationDuration >= duration)
+    {
+      sequence.phase = Constants::Phase::Filtration;
+      sequence.duration = duration - sum;
+      sequence.canInterrupt = true;
+      StateMachine::_cycles[1].sequences.push_back(sequence);
+      
+      break;
+    }
+    
     sequence.phase = Constants::Phase::Filtration;
     sequence.duration = Constants::FiltrationDuration;
     sequence.canInterrupt = true;
     sum += Constants::FiltrationDuration;
     StateMachine::_cycles[1].sequences.push_back(sequence);
-
-    if (sum >= duration)
-    {
-      break;
-    }
 
     sequence.phase = Constants::Phase::BackwashRusco1;
     sequence.duration = Constants::BackwashRusco1Duration;

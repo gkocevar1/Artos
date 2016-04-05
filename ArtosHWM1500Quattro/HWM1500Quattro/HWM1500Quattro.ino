@@ -17,7 +17,7 @@
 
    To reset service timer press within 5 second status, enter, status, enter button.
    TODO: Possible update: press status button for 5 seconds and then within 5 second press status, enter, status, enter button.
-   TODO: Possible update: program selection during wash start-up period 
+   TODO: Possible update: program selection during wash start-up period
 */
 
 #include <Vector.h>
@@ -140,7 +140,7 @@ void loop() {
       if (_sm.runningProgram != Constants::Program::ProgramNone)
       {
         _sm.checkProgress();
-    
+
         if (_sm.runningProgram == Constants::Program::ProgramClose)
         {
           // blink with desinfection light, when close program is running after desinfection program / phase
@@ -168,7 +168,7 @@ void loop() {
 // AUTOMATIC SET
 
 /**
-   put machine in idle state 
+   put machine in idle state
    1. if service is needed and nothing can be run
    2. after close program (desinfection)
 */
@@ -197,9 +197,9 @@ void checkUserSelection()
   {
     return;
   }
-  
+
   int pressedButton = getPressedButton();
-  
+
   switch (pressedButton)
   {
     case btnRIGHT:
@@ -270,6 +270,7 @@ void checkUserSelection()
             _sm.runProgram(program, false);
 
             _programToSelect = -1;
+            _lastPressed = -1;
           }
 
           resetOperationTime(btnSELECT);
@@ -342,7 +343,7 @@ int getPressedButton()
   {
     return btnSELECT;
   }
-  
+
   return btnNONE;  // when all others fail, return this...
 }
 
@@ -398,11 +399,16 @@ void checkLastPressedButton()
 
   // turn of all lights (program1, program2, program3, desinfection) except running one
   setProgramLights(_sm.runningProgram);
+  // if wash program is running then turn on light for program1/program2/program3
+  if (_sm.runningProgram == Constants::Program::ProgramWash)
+  {
+    setProgramLights(_sm.programToRunAfterWash);
+  }
 }
 
 void setProgramLights(Constants::Program program)
 {
-  DMSG1("setProgramLights: ");DMSG(program);
+  DMSG1("setProgramLights: "); DMSG(program);
   digitalWrite(Constants::Program1Light, (program == Constants::Program::Program1) ? HIGH : LOW);
   digitalWrite(Constants::Program2Light, (program == Constants::Program::Program2) ? HIGH : LOW);
   digitalWrite(Constants::Program3Light, (program == Constants::Program::Program3) ? HIGH : LOW);
@@ -411,16 +417,20 @@ void setProgramLights(Constants::Program program)
 
 void displayStatus()
 {
+  if (!canWriteToLCD())
+  {
+    return;
+  }
+
   printToFirstLine("");
-  printToLCDLine("O: ", 0, 0);
-  char operationTime[6];
-  strcpy(operationTime, String(_ms.machineStatus.operationTime).c_str());
-  printToLCDLine(operationTime, 2, 0);
-  
-  printToLCDLine("S:", 11, 0);
-  char fromService[4];
-  strcpy(fromService, String(_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime).c_str());
-  printToLCDLine(fromService, 13, 0);
+  _lcd.setCursor(0, 0);
+  _lcd.print("O: ");
+  _lcd.setCursor(2, 0);
+  _lcd.print(_ms.machineStatus.operationTime);
+  _lcd.setCursor(11, 0);
+  _lcd.print("S:");
+  _lcd.setCursor(13, 0);
+  _lcd.print((_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime));
 
   printToSecondLine("");
   _lcd.setCursor(0, 1);
@@ -465,7 +475,12 @@ void updateDisplay()
   {
     return;
   }
-  
+
+  if (_lastPressed != -1)
+  {
+    return;
+  }
+
   char* program = Constants::ProgramNames[_sm.runningProgram];
   char *phase = Constants::PhaseNames[_sm.runningPhase];
 
@@ -482,7 +497,7 @@ void printToBothLines(char *textLine1, char *textLine2)
     printToFirstLine(textLine1);
     printToSecondLine(textLine2);
   }
-  
+
   if (textLine1 != _aFirstLine)
   {
     _aFirstLine = textLine1;
@@ -532,19 +547,30 @@ void printToLCD(char* text, int column, int line, boolean clearLine)
 
 void printToLCDLine(char* text, int column, int line)
 {
-  // 3v(what we want)/2.5 (reference) x1024/2=614
-  //we read VSS/2 on port 8, we want more than 2.5v to write on the lcd
-  if (analogRead(8) > 613) {
+  if (canWriteToLCD()) {
     _lastTextPrinted = true;
+    DMSG("LastTextPrinted=true");
   }
   else {
     // do not print text to lcs, if voltage is to low
     _lastTextPrinted = false;
+    DMSG("LastTextPrinted=false");
     delay(50);
     return;
   }
-  
+
   _lcd.setCursor(column, line);
   _lcd.print(text);
+}
+
+/*
+   check whether we have enough voltage to write on lcd screen
+
+   3v(what we want)/2.5 (reference) x1024/2=614
+   we read VSS/2 on port 8, we want more than 2.5v to write on the lcd
+*/
+boolean canWriteToLCD()
+{
+  return analogRead(8) > 613;
 }
 

@@ -80,6 +80,7 @@ class StateMachine
     // Fields
     Constants::Program runningProgram;
     Constants::Phase runningPhase;
+    Constants::Program programToRunAfterWash;
 
   private:
 
@@ -144,7 +145,6 @@ class StateMachine
     // temporary save fields (program must continue, after end on manually triggered wash cycle)
     int _programSequence = -1;
     long _programSequenceDuration = -1;
-    Constants::Program _programToRunAfterWash;
 };
 
 #endif

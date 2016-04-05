@@ -270,6 +270,7 @@ void checkUserSelection()
             _sm.runProgram(program, false);
 
             _programToSelect = -1;
+            _lastPressed = -1;
           }
 
           resetOperationTime(btnSELECT);
@@ -367,8 +368,6 @@ void switchToNextProgram()
     ++_programToSelect;
   }
 
-  DMSG1("Switch to next program: "); DMSG(Constants::ProgramNames[_programToSelect]);
-
   setProgramLights(static_cast<Constants::Program>(_programToSelect));
 
   printToFirstLine("Select");
@@ -393,6 +392,11 @@ void checkLastPressedButton()
 
   // turn of all lights (program1, program2, program3, desinfection) except running one
   setProgramLights(_sm.runningProgram);
+  // if wash program is running then turn on light for program1/program2/program3
+  if (_sm.runningProgram == Constants::Program::ProgramWash)
+  {
+    setProgramLights(_sm.programToRunAfterWash);
+  }
 }
 
 void setProgramLights(Constants::Program program)
@@ -405,16 +409,22 @@ void setProgramLights(Constants::Program program)
 
 void displayStatus()
 {
+  if (!canWriteToLCD())
+  {
+    return;
+  }
+
   printToFirstLine("");
-  printToLCDLine("O: ", 0, 0);
-  char operationTime[6];
-  strcpy(operationTime, String(_ms.machineStatus.operationTime).c_str());
-  printToLCDLine(operationTime, 2, 0);
-  
-  printToLCDLine("S:", 11, 0);
-  char fromService[4];
-  strcpy(fromService, String(_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime).c_str());
-  printToLCDLine(fromService, 13, 0);
+  _lcd.setCursor(0, 0);
+  _lcd.print("O: ");
+  _lcd.setCursor(2, 0);
+  _lcd.print(_ms.machineStatus.operationTime);
+  _lcd.setCursor(11, 0);
+  _lcd.print("S:");
+  _lcd.setCursor(13, 0);
+  _lcd.print((_ms.machineStatus.operationTime - _ms.machineStatus.serviceTime));
+
+  printToSecondLine("");
 }
 
 /**
@@ -450,6 +460,11 @@ void resetOperationTime(int key)
 void updateDisplay()
 {
   if (_sm.runningProgram == Constants::Program::ProgramNone)
+  {
+    return;
+  }
+
+  if (_lastPressed != -1)
   {
     return;
   }
@@ -519,9 +534,7 @@ void printToLCD(char* text, int column, int line, boolean clearLine)
 */
 void printToLCDLine(char* text, int column, int line)
 {
-  // 3v(what we want)/2.5 (reference) x1024/2=614
-  //we read VSS/2 on port 8, we want more than 2.5v to write on the lcd
-  if (analogRead(8) > 613) {
+  if (canWriteToLCD()) {
     _lastTextPrinted = true;
   }
   else {
@@ -533,5 +546,16 @@ void printToLCDLine(char* text, int column, int line)
   
   _lcd.setCursor(column, line);
   _lcd.print(text);
+}
+
+/*
+   check whether we have enough voltage to write on lcd screen
+
+   3v(what we want)/2.5 (reference) x1024/2=614
+   we read VSS/2 on port 8, we want more than 2.5v to write on the lcd
+*/
+boolean canWriteToLCD()
+{
+  return analogRead(8) > 613;
 }
 
