@@ -2,7 +2,7 @@
 #define __DEBUG_H__
 
 // uncomment this to print value on serial port
-#define DEBUG
+//#define DEBUG
 
 #include "Arduino.h"
 
