@@ -36,6 +36,7 @@
 #define btnNONE   5
 
 LiquidCrystal _lcd(9, 8, 7, 6, 5, 4);
+
 StateMachine _sm;
 MachineStatus _ms;
 
@@ -174,7 +175,6 @@ void loop() {
 */
 void idle()
 {
-  DMSG("idle");
   // turn off pump, all program lights, force stop valves
   digitalWrite(Constants::Program1Light, LOW);
   digitalWrite(Constants::Program2Light, LOW);
@@ -213,7 +213,6 @@ void checkUserSelection()
             return;
           }
 
-          DMSG("WASH button is pressed");
           _pressed = true;
           if (_sm.isWashAllowed())
           {
@@ -234,12 +233,10 @@ void checkUserSelection()
             return;
           }
 
-          DMSG("SELECT button is pressed");
           _pressed = true;
 
           if (_sm.isProgramChangeAllowed())
           {
-            DMSG("CALL SWITCH PROGRAM");
             switchToNextProgram();
 
             _lastPressed = now();
@@ -254,7 +251,6 @@ void checkUserSelection()
         delay(300);
         if (!_pressed)
         {
-          DMSG("ENTER button is pressed");
           _pressed = true;
 
           if (_sm.runningPhase == Constants::Phase::Desinfection)
@@ -284,7 +280,6 @@ void checkUserSelection()
         delay(300);
         if (!_pressed)
         {
-          DMSG("STATUS button is pressed");
           _pressed = true;
           displayStatus();
 
