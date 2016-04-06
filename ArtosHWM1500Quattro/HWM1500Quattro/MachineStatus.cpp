@@ -169,6 +169,7 @@ void MachineStatus::init()
 */
 void MachineStatus::updateOperationTime()
 {
+  return;
   for (unsigned int t = 0; t < sizeof(machineStatus); t++) {
     EEPROM.write(t, *((char*)&machineStatus + t));
   }

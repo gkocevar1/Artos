@@ -17,7 +17,7 @@
 
    To reset service timer press within 5 second status, enter, status, enter button.
    TODO: Possible update: press status button for 5 seconds and then within 5 second press status, enter, status, enter button.
-   TODO: Possible update: program selection during wash start-up period 
+   TODO: Possible update: program selection during wash start-up period
 */
 
 #include <Vector.h>
@@ -140,7 +140,7 @@ void loop() {
       if (_sm.runningProgram != Constants::Program::ProgramNone)
       {
         _sm.checkProgress();
-    
+
         if (_sm.runningProgram == Constants::Program::ProgramClose)
         {
           // blink with desinfection light, when close program is running after desinfection program / phase
@@ -168,7 +168,7 @@ void loop() {
 // AUTOMATIC SET
 
 /**
-   put machine in idle state 
+   put machine in idle state
    1. if service is needed and nothing can be run
    2. after close program (desinfection)
 */
@@ -197,9 +197,9 @@ void checkUserSelection()
   {
     return;
   }
-  
+
   int pressedButton = getPressedButton();
-  
+
   switch (pressedButton)
   {
     case btnRIGHT:
@@ -468,7 +468,7 @@ void updateDisplay()
   {
     return;
   }
-  
+
   char* program = Constants::ProgramNames[_sm.runningProgram];
   char *phase = Constants::PhaseNames[_sm.runningPhase];
 
@@ -485,7 +485,7 @@ void printToBothLines(char *textLine1, char *textLine2)
     printToFirstLine(textLine1);
     printToSecondLine(textLine2);
   }
-  
+
   if (textLine1 != _aFirstLine)
   {
     _aFirstLine = textLine1;
@@ -543,7 +543,7 @@ void printToLCDLine(char* text, int column, int line)
     delay(50);
     return;
   }
-  
+
   _lcd.setCursor(column, line);
   _lcd.print(text);
 }
@@ -556,6 +556,6 @@ void printToLCDLine(char* text, int column, int line)
 */
 boolean canWriteToLCD()
 {
-  return analogRead(8) > 613;
+  return analogRead(8) > 400; //613; I hope this will works
 }
 

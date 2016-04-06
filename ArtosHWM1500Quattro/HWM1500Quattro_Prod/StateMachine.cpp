@@ -118,16 +118,16 @@ void StateMachine::checkProgress()
   {
     return;
   }
-  
+
   int duration = StateMachine::getSequenceDuration();
   if (duration > -1)
   {
-    if (now() > (duration + _sequenceStart))
+    if (now() > (duration + StateMachine::_sequenceStart))
     {
       // move to next sequence
       StateMachine::moveToNextSequence();
     }
-    else if ((now() + 2) > (duration + _sequenceStart))
+    else if ((now() + 2) > (duration + StateMachine::_sequenceStart))
     {
       // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
       _vp.deactivateValves(0);
@@ -181,7 +181,7 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
     // set sequence position from last position
     StateMachine::_sequenceNumber = StateMachine::_programSequence;
     // add duration to last sequence duration
-    StateMachine::_sequenceStart = now() + StateMachine::_programSequenceDuration;
+    StateMachine::_sequenceStart = now() - StateMachine::_programSequenceDuration;
 
     // reset all
     StateMachine::_programSequence = -1;
@@ -204,7 +204,7 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
 void StateMachine::moveToNextSequence()
 {
   int cycleSequences = _currentCycle.sequences.size();
-  if (cycleSequences > ++_sequenceNumber)
+  if (cycleSequences > ++StateMachine::_sequenceNumber)
   {
     // reset sequence timer
     _sequenceStart = now();

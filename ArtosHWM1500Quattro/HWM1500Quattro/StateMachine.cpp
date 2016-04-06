@@ -141,13 +141,13 @@ void StateMachine::checkProgress()
   int duration = StateMachine::getSequenceDuration();
   if (duration > -1)
   {
-    if (now() > (duration + _sequenceStart))
+    if (now() > (duration + StateMachine::_sequenceStart))
     {
       DMSG("moveToNextSequence");
       // move to next sequence
       StateMachine::moveToNextSequence();
     }
-    else if ((now() + 2) > (duration + _sequenceStart))
+    else if ((now() + 2) > (duration + StateMachine::_sequenceStart))
     {
       // 2 seconds before moving to next sequence close all valves - to avoid simultaneous active polarity (both pins on HIGH state)
       //DMSG("deactivateValves");
@@ -155,7 +155,7 @@ void StateMachine::checkProgress()
     }
   }
 
-  StateMachine::checkPump(); 
+  StateMachine::checkPump();
 }
 
 /**
@@ -202,10 +202,14 @@ void StateMachine::start(const StateMachine::Cycle &cycle)
       StateMachine::_programSequenceDuration != -1 &&
       cycle.cycleId != 0)
   {
+    DMSG("HERE after wash");
     // set sequence position from last position
     StateMachine::_sequenceNumber = StateMachine::_programSequence;
+    DMSG(StateMachine::_sequenceNumber);
     // add duration to last sequence duration
-    StateMachine::_sequenceStart = now() + StateMachine::_programSequenceDuration;
+    StateMachine::_sequenceStart = now() - StateMachine::_programSequenceDuration;
+    DMSG(StateMachine::_sequenceStart);
+    DMSG("________________");
 
     // reset all
     StateMachine::_programSequence = -1;
@@ -230,7 +234,7 @@ void StateMachine::moveToNextSequence()
   DMSG("StateMachine::moveToNextSequence");
 
   int cycleSequences = _currentCycle.sequences.size();
-  if (cycleSequences > ++_sequenceNumber)
+  if (cycleSequences > ++StateMachine::_sequenceNumber)
   {
     //DMSG("Proceed to next sequence");
     // reset sequence timer
@@ -256,11 +260,14 @@ void StateMachine::moveToNextSequence()
     //DMSG("Proceed to next cycle");
     if (_currentCycle.nextCycleId != -1)
     {
+      DMSG("HERE1");
       // 4 specified cycles
       for (int i = 0; i < 5; i++)
       {
+        DMSG("HERE2");
         if (StateMachine::_cycles[i].cycleId == _currentCycle.nextCycleId)
         {
+          DMSG("HERE3");
           //DMSG("New cycle is founded");
           StateMachine::start(StateMachine::_cycles[i]);
           break;

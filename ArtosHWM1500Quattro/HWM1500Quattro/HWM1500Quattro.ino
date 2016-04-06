@@ -544,7 +544,6 @@ void printToLCD(char* text, int column, int line, boolean clearLine)
 /*
   print text to LCD line
 */
-
 void printToLCDLine(char* text, int column, int line)
 {
   if (canWriteToLCD()) {
@@ -571,6 +570,8 @@ void printToLCDLine(char* text, int column, int line)
 */
 boolean canWriteToLCD()
 {
-  return analogRead(8) > 613;
+  int a = analogRead(8);
+  DMSG(a);
+  return a > 400;
 }
 
