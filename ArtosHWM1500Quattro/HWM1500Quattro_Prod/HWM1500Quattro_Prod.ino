@@ -21,7 +21,8 @@
 */
 
 #include <Vector.h>
-#include <LiquidCrystal.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 #include "HWM1500Quattro_debug.h"
 #include "Constants.h"
 #include "StateMachine.h"
@@ -35,7 +36,8 @@
 #define btnSELECT 4 // confirmation button
 #define btnNONE   5
 
-LiquidCrystal _lcd(9, 8, 7, 6, 5, 4);
+// 0x27 lcd address
+LiquidCrystal_I2C _lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
 StateMachine _sm;
 MachineStatus _ms;
@@ -60,7 +62,8 @@ long _lastBlinkCheckTime = -1;
 */
 void setup() {
   // init LCD screen
-  _lcd.begin(16, 2);
+  _lcd.begin (16,2);
+  _lcd.setBacklight(HIGH);
   _lcd.setCursor(0, 0);
 
   // init serial port
