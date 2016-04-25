@@ -407,11 +407,6 @@ void setProgramLights(Constants::Program program)
 
 void displayStatus()
 {
-  if (!canWriteToLCD())
-  {
-    return;
-  }
-
   printToFirstLine("");
   _lcd.setCursor(0, 0);
   _lcd.print("O: ");
@@ -473,17 +468,8 @@ void updateDisplay()
   printToBothLines(program, phase);
 }
 
-/*
-  print to both lines
-*/
-boolean _lastTextPrinted = true;
 void printToBothLines(char *textLine1, char *textLine2)
 {
-  if (!_lastTextPrinted) {
-    printToFirstLine(textLine1);
-    printToSecondLine(textLine2);
-  }
-
   if (textLine1 != _aFirstLine)
   {
     _aFirstLine = textLine1;
@@ -532,28 +518,7 @@ void printToLCD(char* text, int column, int line, boolean clearLine)
 */
 void printToLCDLine(char* text, int column, int line)
 {
-  if (canWriteToLCD()) {
-    _lastTextPrinted = true;
-  }
-  else {
-    // do not print text to lcs, if voltage is to low
-    _lastTextPrinted = false;
-    delay(50);
-    return;
-  }
-
   _lcd.setCursor(column, line);
   _lcd.print(text);
-}
-
-/*
-   check whether we have enough voltage to write on lcd screen
-
-   3v(what we want)/2.5 (reference) x1024/2=614
-   we read VSS/2 on port 8, we want more than 2.5v to write on the lcd
-*/
-boolean canWriteToLCD()
-{
-  return analogRead(8) > 400; //613; I hope this will works
 }
 
