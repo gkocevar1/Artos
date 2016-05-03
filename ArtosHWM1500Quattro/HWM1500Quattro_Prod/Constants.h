@@ -18,8 +18,8 @@ class Constants
     const static int Valve3M = 29;
     const static int Valve4P = 23;
     const static int Valve4M = 25;
-    const static int Valve5P = 20;
-    const static int Valve5M = 21;
+    const static int Valve5P = 9;
+    const static int Valve5M = 8;
     const static int Valve6P = 39;
     const static int Valve6M = 41;
     const static int Valve7P = 43;
